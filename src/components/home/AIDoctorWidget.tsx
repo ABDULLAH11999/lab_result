@@ -107,13 +107,14 @@ export default function AIDoctorWidget() {
   }
 
   return (
-    <div className="pointer-events-none fixed bottom-3 right-2 z-40 block sm:bottom-4 sm:right-3 lg:bottom-5 lg:right-5">
+    <>
       {open ? (
-        <div className="pointer-events-auto absolute bottom-[108px] right-[4px] w-[calc(100vw-32px)] max-w-[360px] sm:bottom-[104px] sm:right-[96px] sm:w-[360px] sm:max-w-none lg:bottom-[112px] lg:right-[136px] lg:w-[min(calc(100vw-260px),760px)]">
-          <div className="relative overflow-hidden rounded-[34px] border border-white/80 bg-white/92 shadow-[0_28px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl">
+        <div className="pointer-events-auto fixed bottom-20 left-4 right-4 z-40 w-auto max-w-[360px] mx-auto sm:bottom-20 sm:left-auto sm:right-20 sm:w-[360px] sm:max-w-none lg:bottom-16 lg:left-6 lg:right-20 lg:w-auto lg:max-w-[760px] lg:ml-auto">
+          <div className="absolute bottom-[-8px] right-7 h-5 w-5 rotate-45 border-b border-r border-white/80 bg-white/90 sm:right-10 lg:bottom-5 lg:right-[-10px] lg:border-b-0 lg:border-r lg:border-t" />
+          
+          <div className="relative flex max-h-[calc(100vh_-_120px)] flex-col overflow-hidden rounded-[34px] border border-white/80 bg-white/92 shadow-[0_28px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl sm:max-h-[calc(100vh_-_140px)] lg:max-h-[calc(100vh_-_100px)]">
             <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-cyan-300/20 blur-3xl" />
             <div className="absolute -left-10 bottom-8 h-36 w-36 rounded-full bg-blue-500/15 blur-3xl" />
-            <div className="absolute bottom-[-8px] right-7 h-5 w-5 rotate-45 border-b border-r border-white/80 bg-white/90 sm:right-10 lg:bottom-5 lg:right-[-10px] lg:border-b-0 lg:border-r lg:border-t" />
 
             <div className="relative border-b border-slate-200/80 px-5 py-4">
               <div className="flex items-start justify-between gap-4">
@@ -137,7 +138,7 @@ export default function AIDoctorWidget() {
               </div>
             </div>
 
-            <div ref={scrollerRef} className="relative flex h-[172px] flex-col gap-3 overflow-y-auto px-4 py-4 sm:h-[262px] lg:h-[360px]">
+            <div ref={scrollerRef} className="relative flex flex-1 min-h-[120px] flex-col gap-3 overflow-y-auto px-4 py-4 max-h-[280px] sm:max-h-[360px] lg:max-h-[460px]">
               {messages.map((message, index) => (
                 <div
                   key={`${message.role}-${index}`}
@@ -201,32 +202,34 @@ export default function AIDoctorWidget() {
         </div>
       ) : null}
 
-      <div className="pointer-events-auto flex items-end justify-end">
-        <button
-          type="button"
-          onClick={() => setOpen((current) => !current)}
-          className="group relative bg-transparent pr-1 pb-1 sm:pr-0 sm:pb-0"
-          aria-label="Open AI Doctor"
-        >
-          {!open ? (
-            <div className="absolute bottom-[34px] right-[72px] w-[168px] max-w-[calc(100vw-96px)] rounded-[24px] border border-white/80 bg-white/92 px-3 py-2.5 text-left text-[12px] leading-5 text-slate-700 shadow-[0_20px_40px_rgba(15,23,42,0.16)] backdrop-blur-xl sm:bottom-[34px] sm:right-[96px] sm:max-w-none sm:w-[192px] sm:text-sm lg:bottom-[50px] lg:right-[136px] lg:w-[240px]">
-              Ask about lab values, symptoms, or what to discuss with your doctor.
-            </div>
-          ) : null}
+      <div className="pointer-events-none fixed bottom-3 right-2 z-40 block sm:bottom-4 sm:right-3 lg:bottom-5 lg:right-5">
+        <div className="pointer-events-auto flex items-end justify-end">
+          <button
+            type="button"
+            onClick={() => setOpen((current) => !current)}
+            className="group relative bg-transparent pr-1 pb-1 sm:pr-0 sm:pb-0"
+            aria-label="Open AI Doctor"
+          >
+            {!open ? (
+              <div className="absolute bottom-[34px] right-[72px] w-[168px] max-w-[calc(100vw_-_96px)] rounded-[24px] border border-white/80 bg-white/92 px-3 py-2.5 text-left text-[12px] leading-5 text-slate-700 shadow-[0_20px_40px_rgba(15,23,42,0.16)] backdrop-blur-xl sm:bottom-[34px] sm:right-[96px] sm:max-w-none sm:w-[192px] sm:text-sm lg:bottom-[50px] lg:right-[136px] lg:w-[240px]">
+                Ask about lab values, symptoms, or what to discuss with your doctor.
+              </div>
+            ) : null}
 
-          <div className="absolute inset-x-3 bottom-4 top-5 rounded-[40px] bg-cyan-300/20 blur-2xl transition duration-300 group-hover:bg-cyan-300/30" />
-          <div className="relative px-2 pt-2">
-            <Image
-              src="/doctor-chat.png"
-              alt="AI Doctor"
-              width={140}
-              height={160}
-              className="h-[96px] w-[72px] object-contain sm:h-[128px] sm:w-[96px] lg:h-[176px] lg:w-[132px]"
-              priority={false}
-            />
-          </div>
-        </button>
+            <div className="absolute inset-x-3 bottom-4 top-5 rounded-[40px] bg-cyan-300/20 blur-2xl transition duration-300 group-hover:bg-cyan-300/30" />
+            <div className="relative px-2 pt-2">
+              <Image
+                src="/doctor-chat.png"
+                alt="AI Doctor"
+                width={140}
+                height={160}
+                className="h-[96px] w-[72px] object-contain sm:h-[128px] sm:w-[96px] lg:h-[176px] lg:w-[132px]"
+                priority={false}
+              />
+            </div>
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
