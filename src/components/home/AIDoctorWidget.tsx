@@ -11,7 +11,7 @@ type ChatMessage = {
 };
 
 export default function AIDoctorWidget() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [cta, setCta] = useState<{ label: string; href: string } | null>(null);
@@ -109,8 +109,8 @@ export default function AIDoctorWidget() {
   return (
     <div className="pointer-events-none fixed bottom-3 right-2 z-40 block sm:bottom-4 sm:right-3 lg:bottom-5 lg:right-5">
       {open ? (
-        <div className="pointer-events-auto absolute bottom-[92px] right-[12px] w-[min(calc(100vw-32px),300px)] sm:bottom-[104px] sm:right-[96px] sm:w-[360px] lg:bottom-[112px] lg:right-[136px] lg:w-[min(calc(100vw-260px),760px)]">
-          <div className="relative overflow-hidden rounded-[34px] border border-white/80 bg-white/90 shadow-[0_28px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl">
+        <div className="pointer-events-auto absolute bottom-[108px] right-[4px] w-[calc(100vw-32px)] max-w-[360px] sm:bottom-[104px] sm:right-[96px] sm:w-[360px] sm:max-w-none lg:bottom-[112px] lg:right-[136px] lg:w-[min(calc(100vw-260px),760px)]">
+          <div className="relative overflow-hidden rounded-[34px] border border-white/80 bg-white/92 shadow-[0_28px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl">
             <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-cyan-300/20 blur-3xl" />
             <div className="absolute -left-10 bottom-8 h-36 w-36 rounded-full bg-blue-500/15 blur-3xl" />
             <div className="absolute bottom-[-8px] right-7 h-5 w-5 rotate-45 border-b border-r border-white/80 bg-white/90 sm:right-10 lg:bottom-5 lg:right-[-10px] lg:border-b-0 lg:border-r lg:border-t" />
@@ -209,7 +209,7 @@ export default function AIDoctorWidget() {
           aria-label="Open AI Doctor"
         >
           {!open ? (
-            <div className="absolute bottom-[34px] right-[72px] w-[168px] rounded-[24px] border border-white/80 bg-white/92 px-3 py-2.5 text-left text-[12px] leading-5 text-slate-700 shadow-[0_20px_40px_rgba(15,23,42,0.16)] backdrop-blur-xl sm:bottom-[34px] sm:right-[82px] sm:w-[192px] sm:text-sm lg:bottom-[50px] lg:right-[118px] lg:w-[240px]">
+            <div className="absolute bottom-[34px] right-[72px] w-[168px] max-w-[calc(100vw-96px)] rounded-[24px] border border-white/80 bg-white/92 px-3 py-2.5 text-left text-[12px] leading-5 text-slate-700 shadow-[0_20px_40px_rgba(15,23,42,0.16)] backdrop-blur-xl sm:bottom-[34px] sm:right-[96px] sm:max-w-none sm:w-[192px] sm:text-sm lg:bottom-[50px] lg:right-[136px] lg:w-[240px]">
               Ask about lab values, symptoms, or what to discuss with your doctor.
             </div>
           ) : null}
