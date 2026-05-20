@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   const tier = session ? session.plan : "guest";
   const identifier = session?.id || ip;
   const limiterTier = tier === "pro" ? "pro" : tier === "free" ? "free" : "guest";
-  const rate = await checkRateLimit(identifier, limiterTier);
+  const rate = await checkRateLimit(identifier, limiterTier, "analysis");
 
   if (!rate.allowed) {
     return NextResponse.json(
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   try {
     const result = await analyzeLabResults(rawText);
     let reportId: string | undefined;
-    await recordUsage(identifier, limiterTier);
+    await recordUsage(identifier, limiterTier, "analysis");
 
     if (session) {
       reportId = uid("report");

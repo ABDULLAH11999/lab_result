@@ -3,5 +3,11 @@
     "identifier": "::1",
     "tier": "guest",
     "createdAt": "2026-05-20T11:36:24.847Z"
+  },
+  {
+    "identifier": "admin_seed",
+    "tier": "pro",
+    "type": "doctor_chat",
+    "createdAt": "2026-05-20T20:09:19.945Z"
   }
 ]

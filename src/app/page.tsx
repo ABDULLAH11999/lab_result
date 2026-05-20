@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import AnalyzePageClient from "@/components/analyze/AnalyzePageClient";
+import AIDoctorWidget from "@/components/home/AIDoctorWidget";
 import { getSettings } from "@/lib/db";
 import { DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE, getSiteKeywords, normalizeBaseUrl } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -288,6 +289,7 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+      <AIDoctorWidget />
     </div>
   );
 }
