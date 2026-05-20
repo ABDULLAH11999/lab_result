@@ -1,0 +1,15 @@
+{
+  "enableOtp": true,
+  "supportEmail": "hello@labexplain.com",
+  "mailFrom": "LabExplain <alerts@labexplain.online>",
+  "siteName": "LabExplain",
+  "siteTitle": "LabExplain | Understand Your Lab Results in Plain English",
+  "siteDescription": "Paste your blood test results and get calm, plain-English explanations for each lab value, how they fit together, and what to ask your doctor next.",
+  "canonicalUrl": "http://localhost:3000",
+  "faviconUrl": "/favicon.svg",
+  "ogImageUrl": "/og-default.svg",
+  "stripeMode": "test",
+  "stripeConfigured": true,
+  "aiConfigured": true,
+  "resendConfigured": true
+}

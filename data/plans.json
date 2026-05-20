@@ -1,0 +1,39 @@
+[
+  {
+    "id": "guest",
+    "name": "Guest",
+    "price": 0,
+    "isPaid": false,
+    "analysesLimit": 3,
+    "features": [
+      "3 analyses/day",
+      "Plain-English explanation",
+      "Doctor questions"
+    ]
+  },
+  {
+    "id": "free",
+    "name": "Free",
+    "price": 0,
+    "isPaid": false,
+    "analysesLimit": 10,
+    "features": [
+      "10 analyses/day",
+      "Save last 5 reports",
+      "Basic dashboard"
+    ]
+  },
+  {
+    "id": "pro",
+    "name": "Pro",
+    "price": 9,
+    "isPaid": true,
+    "analysesLimit": 999999,
+    "features": [
+      "Unlimited analyses",
+      "Full history",
+      "Trend tracking",
+      "PDF export"
+    ]
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "admin_seed",
+    "email": "labtest7940@gmail.com",
+    "fullName": "LabExplain Admin",
+    "password": "e7e3dd77b26c66815d981f6da008a8f4bf8afa02c3973e614c0b2f1c1deb93ea",
+    "role": "superadmin",
+    "plan": "pro",
+    "is_active": true,
+    "analysesToday": 0,
+    "analysesLimit": 999999,
+    "createdAt": "2026-05-20T00:00:00.000Z",
+    "verifiedAt": "2026-05-20T00:00:00.000Z"
+  },
+  {
+    "id": "user_4ee4crtdmpe14m0q",
+    "email": "abdullahirfan712@gmail.com",
+    "fullName": "Abdullah",
+    "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "plan": "free",
+    "analysesToday": 0,
+    "analysesLimit": 10,
+    "createdAt": "2026-05-20T12:19:49.754Z",
+    "verifiedAt": "2026-05-20T12:19:49.754Z"
+  }
+]

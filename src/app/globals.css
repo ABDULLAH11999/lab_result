@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --font-sans: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Syne", "Avenir Next", "Segoe UI", sans-serif;
+}
+
+:root {
+  --background: #f6f8fc;
+  --foreground: #0f172a;
+}
+
+@layer base {
+  * {
+    @apply border-slate-200;
+  }
+
+  body {
+    @apply bg-[var(--background)] text-[var(--foreground)] antialiased;
+    font-family: var(--font-sans);
+  }
+
+  .font-syne {
+    font-family: var(--font-heading);
+  }
+}
+
+.hero-glow {
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.16), transparent 35%),
+    radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.16), transparent 30%);
+}

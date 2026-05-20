@@ -1,0 +1,217 @@
+import Link from "next/link";
+import {
+  AlertTriangle,
+  ArrowRight,
+  Camera,
+  CheckCircle2,
+  Clipboard,
+  FileUp,
+  HeartPulse,
+  HelpCircle,
+  MessageSquareQuote,
+  ShieldCheck,
+  Sparkles,
+  Upload
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
+import AnalyzePageClient from "@/components/analyze/AnalyzePageClient";
+
+const features = [
+  "Explains every value in plain English",
+  "Flags what looks normal, borderline, or concerning",
+  "Connects patterns across CBC, CMP, lipids, thyroid, A1c, and vitamins",
+  "Generates doctor questions to ask at your appointment"
+];
+
+const faqs = [
+  {
+    question: "Can I use a phone photo of my lab report?",
+    answer: "Yes. You can upload a clear photo or use your camera to scan the paper report. LabExplain will try to read the text and place it into the analyzer for you."
+  },
+  {
+    question: "What if I am not comfortable with technology?",
+    answer: "That is exactly who this homepage is designed for. You can paste text, upload a PDF, or simply take a picture. Then press one button and read the explanation in plain English."
+  },
+  {
+    question: "Will this tell me if I have a disease?",
+    answer: "No. LabExplain is educational only. It helps you understand what the numbers usually mean, but it does not diagnose conditions or replace your doctor."
+  },
+  {
+    question: "What kinds of reports work best?",
+    answer: "CBC, CMP, cholesterol, thyroid, HbA1c, vitamin D, ferritin, iron, and many other standard blood test reports work well, especially when the report includes reference ranges."
+  }
+];
+
+export default function HomePage() {
+  return (
+    <div>
+      <section className="hero-glow overflow-hidden border-b border-slate-200 bg-white">
+        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div>
+            <div className="mb-5 inline-flex rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-800">
+              Made for real patient reports, including PDFs and paper printouts
+            </div>
+            <h1 className="font-syne max-w-3xl text-5xl font-extrabold tracking-tight text-slate-950 sm:text-6xl">
+              Understand Your Lab Report Without The Confusion
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+              Paste the report, upload the PDF, or take a picture of the paper slip. LabExplain turns hard-to-read lab values into simple explanations you can actually follow.
+            </p>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-3xl border border-slate-200 bg-white p-4">
+                <div className="mb-2 flex items-center gap-2 text-blue-700">
+                  <Clipboard className="size-4" />
+                  <span className="text-sm font-semibold">Paste text</span>
+                </div>
+                <p className="text-sm leading-6 text-slate-600">Best for copied results from MyChart, Quest, Labcorp, or your clinic portal.</p>
+              </div>
+              <div className="rounded-3xl border border-slate-200 bg-white p-4">
+                <div className="mb-2 flex items-center gap-2 text-blue-700">
+                  <Camera className="size-4" />
+                  <span className="text-sm font-semibold">Scan paper report</span>
+                </div>
+                <p className="text-sm leading-6 text-slate-600">Take a photo of a printed lab slip if that is easier than typing everything out.</p>
+              </div>
+            </div>
+            <p className="mt-5 text-sm text-slate-500">Guest: 3 analyses/day. Free account: 10/day. Pro: unlimited history, trends, and export.</p>
+          </div>
+
+          <AnalyzePageClient
+            embedded
+            title="Start Right Here"
+            description="Choose the easiest option for you: paste the text, upload the lab file, or scan a paper report with your phone camera."
+          />
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div className="mb-10 max-w-2xl">
+          <h2 className="font-syne text-3xl font-bold text-slate-950">What you will get back</h2>
+          <p className="mt-3 text-slate-600">A visual, calm explanation of the full lab picture instead of a list of scary numbers.</p>
+        </div>
+        <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+          <Card className="p-6 sm:p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="rounded-2xl bg-cyan-100 p-3 text-cyan-800">
+                <HeartPulse className="size-6" />
+              </div>
+              <div>
+                <h2 className="font-syne text-2xl font-bold text-slate-950">Why people use LabExplain</h2>
+                <p className="text-sm text-slate-500">A calmer, faster way to understand a report before the doctor visit.</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {features.map((feature) => (
+                <div key={feature} className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4">
+                  <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-600" />
+                  <p className="text-sm leading-6 text-slate-700">{feature}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="overflow-hidden p-0">
+            <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+              <div className="mb-2 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                Visual Results Preview
+              </div>
+              <h3 className="font-syne text-2xl font-bold text-slate-950">See the kind of output patients get</h3>
+            </div>
+            <div className="space-y-4 p-6">
+              <div className="rounded-3xl border border-slate-200 bg-white p-5">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-syne text-xl font-bold text-slate-950">Overall Summary</p>
+                    <p className="text-sm text-slate-500">Simple language, not medical jargon</p>
+                  </div>
+                  <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                    Worth Watching
+                  </span>
+                </div>
+                <p className="text-sm leading-7 text-slate-700">
+                  A few values are mildly outside the usual range. Nothing in this preview suggests panic, but the lower hemoglobin and higher LDL are worth discussing with your doctor together.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-rose-700">
+                    <AlertTriangle className="size-4" />
+                    <span className="text-sm font-semibold">Hemoglobin</span>
+                  </div>
+                  <p className="font-mono text-sm text-slate-700">11.8 g/dL</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">Lower than the listed range, which can happen for several reasons and should be interpreted with the rest of your CBC.</p>
+                </div>
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-amber-700">
+                    <AlertTriangle className="size-4" />
+                    <span className="text-sm font-semibold">LDL Cholesterol</span>
+                  </div>
+                  <p className="font-mono text-sm text-slate-700">142 mg/dL</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">Flagged high on many lab reports. The meaning depends on age, heart risk, and the rest of your cholesterol panel.</p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <MessageSquareQuote className="size-4 text-blue-700" />
+                  <p className="text-sm font-semibold text-slate-900">Questions for your doctor</p>
+                </div>
+                <div className="space-y-2 text-sm text-slate-700">
+                  <div className="rounded-xl bg-white p-3">Should I repeat these labs, and if so, when?</div>
+                  <div className="rounded-xl bg-white p-3">Could the low hemoglobin and low MCV be related?</div>
+                  <div className="rounded-xl bg-white p-3">What changes matter most based on my age and history?</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      <section className="border-y border-slate-200 bg-slate-50 py-20">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mb-10 max-w-2xl">
+            <h2 className="font-syne text-3xl font-bold text-slate-950">Three easy ways to start</h2>
+            <p className="mt-3 text-slate-600">Designed for people who want the simplest possible path from report to explanation.</p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              { icon: Clipboard, title: "Paste your report", text: "Copy the text from Labcorp, Quest, MyChart, or a doctor portal." },
+              { icon: Upload, title: "Upload the file", text: "Upload a PDF, text file, or report image if you do not want to copy and paste." },
+              { icon: Camera, title: "Scan a paper receipt", text: "Use your phone camera to photograph the printed slip and let LabExplain read it for you." }
+            ].map((item) => (
+              <Card key={item.title} className="p-6">
+                <item.icon className="mb-4 size-7 text-blue-700" />
+                <h3 className="font-syne text-xl font-bold text-slate-950">{item.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div className="mb-12 text-center">
+          <HelpCircle className="mx-auto mb-4 size-8 text-blue-700" />
+          <h2 className="font-syne text-3xl font-bold text-slate-950">Frequently Asked Questions</h2>
+          <p className="mt-3 text-slate-600">Short answers for the questions most people have before using the tool.</p>
+        </div>
+        <div className="mx-auto max-w-4xl space-y-4">
+          {faqs.map((faq) => (
+            <details key={faq.question} className="group rounded-3xl border border-slate-200 bg-white p-0 shadow-sm">
+              <summary className="cursor-pointer list-none px-6 py-5 font-syne text-lg font-bold text-slate-950">
+                <div className="flex items-center justify-between gap-4">
+                  <span>{faq.question}</span>
+                  <ArrowRight className="size-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
+                </div>
+              </summary>
+              <div className="border-t border-slate-100 px-6 py-5 text-sm leading-7 text-slate-600">
+                {faq.answer}
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
