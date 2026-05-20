@@ -1,12 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOtps, writeOtps } from "@/lib/db";
+import { getOtps, writeOtps, getSettings } from "@/lib/db";
 import { sendOtpEmail } from "@/lib/mail";
 import { uid } from "@/lib/utils";
+import { createUser, setSession } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   const { fullName, email, password } = await request.json();
   if (!email || !password || password.length < 8) {
     return NextResponse.json({ error: "Please provide a valid email and an 8+ character password." }, { status: 400 });
+  }
+
+  const settings = getSettings();
+  const enableOtp = settings.enableOtp !== false; // default to true if not explicitly set to false
+
+  if (!enableOtp) {
+    try {
+      const user = createUser({
+        email: email.toLowerCase(),
+        fullName: fullName?.trim(),
+        password
+      });
+      await setSession(user);
+      return NextResponse.json({ success: true, directLogin: true });
+    } catch (e: any) {
+      return NextResponse.json({ error: e.message || "Could not register user." }, { status: 400 });
+    }
   }
 
   const code = `${Math.floor(100000 + Math.random() * 900000)}`;

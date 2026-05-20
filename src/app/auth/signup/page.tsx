@@ -31,6 +31,11 @@ export default function SignupPage() {
       return;
     }
 
+    if (data.directLogin) {
+      router.push(selectedPlan === "pro" ? "/pricing" : "/dashboard");
+      return;
+    }
+
     setOtpHint(data.previewCode ? `Development code: ${data.previewCode}` : "Check your email for the code.");
     setStep("otp");
   }

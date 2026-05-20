@@ -1,7 +1,9 @@
-import { getUsage, writeUsage } from "@/lib/db";
+import { getUsage, writeUsage, getPlans } from "@/lib/db";
 
 export async function checkRateLimit(identifier: string, tier: "guest" | "free" | "pro" = "guest") {
-  const limit = tier === "guest" ? 3 : tier === "free" ? 10 : 1000;
+  const plans = getPlans<any>();
+  const plan = plans.find((p) => p.id === tier);
+  const limit = plan ? plan.analysesLimit : (tier === "guest" ? 3 : tier === "free" ? 10 : 1000);
   const cutoff = Date.now() - 24 * 60 * 60 * 1000;
   const usage = getUsage<any>().filter(
     (entry) => entry.identifier === identifier && new Date(entry.createdAt).getTime() >= cutoff

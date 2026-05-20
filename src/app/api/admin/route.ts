@@ -17,7 +17,7 @@ import {
   writeSettings,
   writeUsers
 } from "@/lib/db";
-import { sendContactNotification } from "@/lib/mail";
+import { sendContactNotification, sendTestReceiverEmail } from "@/lib/mail";
 import { getRuntimeSettings, getStripeEnv } from "@/lib/runtime-config";
 import { updateStaticSitemap } from "@/lib/sitemap";
 import { slugify, uid } from "@/lib/utils";
@@ -189,12 +189,7 @@ export async function POST(request: NextRequest) {
     if (!body.testRecipient) {
       return NextResponse.json({ error: "Recipient email is required." }, { status: 400 });
     }
-    await sendContactNotification({
-      name: "LabExplain Admin Test",
-      email: body.testRecipient,
-      subject: "LabExplain mail configuration test",
-      message: "This is a successful outbound email test from the LabExplain admin panel."
-    });
+    await sendTestReceiverEmail(body.testRecipient);
     return NextResponse.json({ success: true });
   }
 

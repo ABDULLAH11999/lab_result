@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from "react";
-import { Activity, BarChart3, BookOpen, CreditCard, FileText, LayoutDashboard, LogOut, Mail, Search, Settings, Shield, Users } from "lucide-react";
+import { Activity, BarChart3, BookOpen, CreditCard, FileText, LayoutDashboard, LogOut, Mail, Search, Settings, Shield, Users, Send } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const sections = [
@@ -12,6 +12,7 @@ const sections = [
   { id: "contacts", label: "Contacts", icon: Mail },
   { id: "tracking", label: "Tracking", icon: Activity },
   { id: "payments", label: "Payments", icon: CreditCard },
+  { id: "smtp", label: "SMTP Menu", icon: Mail },
   { id: "seo", label: "SEO", icon: Search },
   { id: "settings", label: "Settings", icon: Settings }
 ] as const;
@@ -523,6 +524,189 @@ export default function AdminPage() {
               Save SEO Settings
             </button>
           </Card>
+        )}
+
+        {activeSection === "smtp" && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card className="p-6">
+              <h2 className="font-syne text-2xl font-bold text-slate-950 flex items-center gap-2">
+                <Mail className="size-6 text-blue-600" />
+                SMTP & OTP Settings
+              </h2>
+              <p className="mt-2 text-sm text-slate-500">
+                Enable or disable signup security checks and configure system-wide notification alerts.
+              </p>
+              
+              <div className="mt-6 space-y-6">
+                {/* OTP Verification Toggle */}
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-slate-950">OTP Verification</h3>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Require email confirmation code during new user signup.
+                      </p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        const updatedOtp = settings.enableOtp === false ? true : false;
+                        const nextSettings = { ...settings, enableOtp: updatedOtp };
+                        setSettings(nextSettings);
+                        await fetch("/api/admin", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ action: "updateSettings", settings: nextSettings })
+                        });
+                      }}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        settings?.enableOtp !== false ? "bg-blue-600" : "bg-slate-200"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          settings?.enableOtp !== false ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className={`inline-block size-2 rounded-full ${settings?.enableOtp !== false ? "bg-emerald-500" : "bg-amber-500"}`}></span>
+                    <span className="text-xs font-semibold text-slate-600">
+                      {settings?.enableOtp !== false ? "OTP Signup Flow Enabled (Secure)" : "Password-only Signups Flow Enabled (Bypass)"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Email Receivers List */}
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <h3 className="font-semibold text-slate-950">Purchase Alert Receivers</h3>
+                  <p className="mt-1 text-xs text-slate-500 mb-4">
+                    Receives a copy of every new Pro paid plan purchase.
+                  </p>
+                  
+                  <div className="flex gap-2">
+                    <input
+                      id="new-receiver-input"
+                      type="email"
+                      placeholder="admin@yourdomain.com"
+                      className="flex-1 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    />
+                    <button
+                      onClick={async () => {
+                        const input = document.getElementById("new-receiver-input") as HTMLInputElement;
+                        const email = input?.value?.trim();
+                        if (!email || !email.includes("@")) return;
+                        
+                        const currentReceivers = settings.emailReceivers || [];
+                        if (currentReceivers.includes(email)) return;
+                        
+                        const nextSettings = {
+                          ...settings,
+                          emailReceivers: [...currentReceivers, email]
+                        };
+                        setSettings(nextSettings);
+                        if (input) input.value = "";
+                        
+                        await fetch("/api/admin", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ action: "updateSettings", settings: nextSettings })
+                        });
+                      }}
+                      className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
+                    {(settings?.emailReceivers || []).length > 0 ? (
+                      (settings.emailReceivers as string[]).map((email) => (
+                        <div key={email} className="flex items-center justify-between rounded-xl bg-white border border-slate-100 p-3 text-sm">
+                          <span className="font-medium text-slate-700">{email}</span>
+                          <button
+                            onClick={async () => {
+                              const currentReceivers = settings.emailReceivers || [];
+                              const nextSettings = {
+                                ...settings,
+                                emailReceivers: currentReceivers.filter((e: string) => e !== email)
+                              };
+                              setSettings(nextSettings);
+                              await fetch("/api/admin", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ action: "updateSettings", settings: nextSettings })
+                              });
+                            }}
+                            className="text-rose-600 hover:text-rose-700 text-xs font-semibold"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center py-4 text-xs text-slate-400 italic bg-white border border-dashed border-slate-200 rounded-xl">
+                        No custom receivers added. Default support email will receive notifications.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h2 className="font-syne text-2xl font-bold text-slate-950 flex items-center gap-2">
+                <Send className="size-6 text-blue-600" />
+                Test Outbound Email
+              </h2>
+              <p className="mt-2 text-sm text-slate-500">
+                Validate your mail settings by sending a test alert using Resend transactional service.
+              </p>
+
+              <div className="mt-6 space-y-4">
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <label className="block text-sm font-semibold text-slate-800 mb-2">Test Recipient Email</label>
+                  <select
+                    id="test-email-recipient"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm mb-4 focus:outline-none"
+                  >
+                    <option value={settings?.supportEmail || "labtest7940@gmail.com"}>
+                      Support Email ({settings?.supportEmail || "labtest7940@gmail.com"})
+                    </option>
+                    {(settings?.emailReceivers || []).map((email: string) => (
+                      <option key={email} value={email}>
+                        Custom Receiver: {email}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    onClick={async () => {
+                      const select = document.getElementById("test-email-recipient") as HTMLSelectElement;
+                      const recipient = select?.value;
+                      if (!recipient) return;
+                      
+                      const res = await fetch("/api/admin", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "sendTestEmail", testRecipient: recipient })
+                      });
+                      
+                      if (res.ok) {
+                        alert(`Test email successfully sent to ${recipient}!`);
+                      } else {
+                        const errData = await res.json();
+                        alert(`Failed to send test email: ${errData.error || "Unknown error"}`);
+                      }
+                    }}
+                    className="w-full rounded-2xl bg-blue-600 px-5 py-3.5 font-semibold text-white hover:bg-blue-700 active:scale-[0.98] transition-all"
+                  >
+                    Send Outbound Test Email
+                  </button>
+                </div>
+              </div>
+            </Card>
+          </div>
         )}
 
         {activeSection === "settings" && (

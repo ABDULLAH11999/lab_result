@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
 import { getPayments, getUsers, writePayments, writeUsers } from "@/lib/db";
 import { getRuntimeSettings } from "@/lib/runtime-config";
+import { sendPurchaseConfirmationUser, sendPurchaseNotificationAdmin } from "@/lib/mail";
 
 export async function POST(request: NextRequest) {
   const runtime = getRuntimeSettings();
@@ -36,6 +37,14 @@ export async function POST(request: NextRequest) {
       user.stripeSubscriptionId = session.subscription;
       user.stripeCustomerId = session.customer;
       writeUsers(users);
+
+      // Trigger purchase success emails
+      try {
+        await sendPurchaseConfirmationUser(user.email, "Pro");
+        await sendPurchaseNotificationAdmin(user.email, "Pro");
+      } catch (err) {
+        console.error("Failed to send purchase emails:", err);
+      }
     }
   }
 

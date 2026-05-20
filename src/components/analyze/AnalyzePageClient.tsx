@@ -83,6 +83,7 @@ export default function AnalyzePageClient({
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
   const [uploadedFileName, setUploadedFileName] = useState("");
+  const [showSignupModal, setShowSignupModal] = useState(false);
   const router = useRouter();
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -105,6 +106,10 @@ export default function AnalyzePageClient({
 
       const data = await res.json();
       if (!res.ok) {
+        if (res.status === 429 && data.isGuest) {
+          setShowSignupModal(true);
+          return;
+        }
         setError(data.message || data.error || "Analysis failed.");
         return;
       }
@@ -297,6 +302,74 @@ export default function AnalyzePageClient({
           ))}
         </div>
       </div>
+
+      {showSignupModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-md animate-in fade-in duration-200">
+          <div 
+            className="relative w-full max-w-lg scale-in-center overflow-hidden rounded-[32px] border border-slate-200 bg-white p-6 shadow-2xl sm:p-8 animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Ambient Background Glow */}
+            <div className="absolute -right-20 -top-20 -z-10 size-60 rounded-full bg-blue-500/10 blur-3xl"></div>
+            <div className="absolute -left-20 -bottom-20 -z-10 size-60 rounded-full bg-emerald-500/10 blur-3xl"></div>
+
+            <div className="text-center text-slate-700">
+              <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
+                <Sparkles className="size-8" />
+              </div>
+
+              <h3 className="font-syne text-2xl font-bold text-slate-950 sm:text-3xl">
+                Unlock 10 Free Analyses!
+              </h3>
+              
+              <p className="mt-4 text-sm leading-6 text-slate-600 sm:text-base">
+                You've completed your <span className="font-bold text-slate-950">3 free guest attempts</span> for today. Sign up for a free LabExplain account to instantly get:
+              </p>
+
+              <div className="mx-auto mt-6 max-w-md rounded-2xl bg-slate-50 p-4 text-left border border-slate-100">
+                <ul className="space-y-3 text-sm text-slate-600 sm:text-base">
+                  <li className="flex items-center gap-3">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓</span>
+                    <span className="text-sm"><strong>10 free daily</strong> lab report analyses</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓</span>
+                    <span className="text-sm">Save & view your full analysis history</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓</span>
+                    <span className="text-sm">Doctor question planner & key trend tracking</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <button
+                  onClick={() => {
+                    setShowSignupModal(false);
+                    router.push("/auth/signup");
+                  }}
+                  className="w-full rounded-2xl bg-blue-600 px-6 py-4 text-base font-semibold text-white transition-all hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98]"
+                >
+                  Sign Up for Free
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSignupModal(false);
+                    router.push("/auth/signup");
+                  }}
+                  className="w-full rounded-2xl border border-slate-200 px-6 py-4 text-base font-semibold text-slate-700 transition-all hover:bg-slate-50 active:scale-[0.98]"
+                >
+                  Cancel
+                </button>
+              </div>
+              <p className="mt-4 text-xs text-slate-400">
+                Takes less than 1 minute • No credit card required
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

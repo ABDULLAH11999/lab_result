@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
       {
         error: "Daily limit reached.",
         message: session ? "Upgrade to Pro for unlimited analyses." : "Create a free account for 10 analyses per day.",
-        upgradeRequired: true
+        upgradeRequired: true,
+        isGuest: !session
       },
       { status: 429 }
     );
