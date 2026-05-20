@@ -109,7 +109,7 @@ export default function AIDoctorWidget() {
   return (
     <div className="pointer-events-none fixed bottom-3 right-2 z-40 block sm:bottom-4 sm:right-3 lg:bottom-5 lg:right-5">
       {open ? (
-        <div className="pointer-events-auto absolute bottom-[86px] right-[18px] w-[292px] sm:bottom-[102px] sm:right-[88px] sm:w-[362px] lg:bottom-[112px] lg:right-[108px] lg:w-[812px]">
+        <div className="pointer-events-auto absolute bottom-[92px] right-[12px] w-[min(calc(100vw-32px),300px)] sm:bottom-[104px] sm:right-[96px] sm:w-[360px] lg:bottom-[112px] lg:right-[136px] lg:w-[min(calc(100vw-260px),760px)]">
           <div className="relative overflow-hidden rounded-[34px] border border-white/80 bg-white/90 shadow-[0_28px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl">
             <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-cyan-300/20 blur-3xl" />
             <div className="absolute -left-10 bottom-8 h-36 w-36 rounded-full bg-blue-500/15 blur-3xl" />
@@ -137,7 +137,7 @@ export default function AIDoctorWidget() {
               </div>
             </div>
 
-            <div ref={scrollerRef} className="relative flex h-[172px] flex-col gap-3 overflow-y-auto px-4 py-4 sm:h-[262px] lg:h-[392px]">
+            <div ref={scrollerRef} className="relative flex h-[172px] flex-col gap-3 overflow-y-auto px-4 py-4 sm:h-[262px] lg:h-[360px]">
               {messages.map((message, index) => (
                 <div
                   key={`${message.role}-${index}`}
@@ -209,7 +209,7 @@ export default function AIDoctorWidget() {
           aria-label="Open AI Doctor"
         >
           {!open ? (
-            <div className="absolute bottom-[34px] right-[58px] w-[166px] rounded-[24px] border border-white/80 bg-white/92 px-3 py-2.5 text-left text-[12px] leading-5 text-slate-700 shadow-[0_20px_40px_rgba(15,23,42,0.16)] backdrop-blur-xl sm:bottom-[34px] sm:right-[70px] sm:w-[190px] sm:text-sm lg:bottom-[50px] lg:right-[96px] lg:w-[235px]">
+            <div className="absolute bottom-[34px] right-[72px] w-[168px] rounded-[24px] border border-white/80 bg-white/92 px-3 py-2.5 text-left text-[12px] leading-5 text-slate-700 shadow-[0_20px_40px_rgba(15,23,42,0.16)] backdrop-blur-xl sm:bottom-[34px] sm:right-[82px] sm:w-[192px] sm:text-sm lg:bottom-[50px] lg:right-[118px] lg:w-[240px]">
               Ask about lab values, symptoms, or what to discuss with your doctor.
             </div>
           ) : null}
