@@ -16,18 +16,35 @@ const panelMatchers = [
   { key: "Diabetes", name: "Diabetes", matches: ["hba1c", "a1c", "insulin"] },
   { key: "Vitamins", name: "Vitamin & Mineral Levels", matches: ["vitamin d", "vitamin b12", "folate", "iron", "ferritin", "magnesium"] },
   { key: "Vitals", name: "Vitals", matches: ["blood pressure", "heart rate", "spo2", "oxygen", "temperature", "respiratory rate", "bmi", "weight", "height"] },
-  { key: "Diagnostic Findings", name: "Diagnostic Findings", matches: ["electrocardiogram", "ecg", "ekg", "chest x-ray", "x-ray", "impression", "diagnosis", "assessment"] }
+  { key: "Diagnostic Findings", name: "Diagnostic Findings", matches: ["electrocardiogram", "ecg", "ekg", "chest x-ray", "x-ray", "impression", "diagnosis", "assessment", "plan"] }
 ];
 
+const ignoredFieldNames = new Set([
+  "patient name",
+  "patient id",
+  "date of birth",
+  "gender",
+  "attending physician",
+  "license no",
+  "disclaimer"
+]);
+
 function normalizeRange(range?: string) {
-  return range?.replace(/[â€“–—]/g, "-");
+  return range?.replace(/[–—−]/g, "-");
 }
 
 function detectStatus(line: string, value?: number, range?: string): ValueStatus {
-  const lower = line.toLowerCase().replace(/prehypertension/g, "high").replace(/elevated/g, "high");
+  const lower = line
+    .toLowerCase()
+    .replace(/prehypertension/g, "high")
+    .replace(/elevated/g, "high");
+
   if (lower.includes("critical low")) return "critical_low";
   if (lower.includes("critical high")) return "critical_high";
+  if (lower === "high") return "high";
+  if (lower === "low") return "low";
   if (lower.includes(" abnormal")) return "high";
+  if (lower.includes(" deficiency")) return "low";
   if (lower.includes(" low")) return "low";
   if (lower.includes(" high")) return "high";
 
@@ -86,7 +103,7 @@ function parseVitals(lines: string[]) {
     /^(Blood Pressure)\s+([0-9]{2,3}\/[0-9]{2,3}\s*mmHg)\s+(.+?)\s+(Normal|Prehypertension|High|Low)$/i,
     /^(Heart Rate)\s+([0-9]{2,3}\s*bpm)\s+(.+?)\s+(Normal|High|Low)$/i,
     /^(SpO2(?:\s*\(Oxygen\))?)\s+([0-9]{2,3}%.*)\s+(.+?)\s+(Normal|High|Low)$/i,
-    /^(Temperature)\s+([0-9]{2}(?:\.[0-9])?°[CF].*)\s+(.+?)\s+(Normal|High|Low)$/i
+    /^(Temperature)\s+([0-9]{2}(?:\.[0-9])?[°º]?[CF]?.*)\s+(.+?)\s+(Normal|High|Low)$/i
   ];
 
   for (const line of lines) {
@@ -122,10 +139,15 @@ function parseColonValues(lines: string[]) {
     if (!match) continue;
 
     const name = match[1].trim();
+    if (ignoredFieldNames.has(name.toLowerCase())) continue;
+
     const raw = match[2].replace(/\s+/g, " ").trim();
-    const valueMatch = raw.match(/-?\d+(\.\d+)?/);
+    const looksNarrative =
+      raw.length > 80 ||
+      /normal sinus rhythm|radiograph|no acute|continue|follow-up|diagnosis|recommendation|deficiency|monitor/i.test(raw);
+    const valueMatch = looksNarrative ? null : raw.match(/-?\d+(\.\d+)?/);
     const number = valueMatch ? Number(valueMatch[0]) : undefined;
-    const unit = raw.replace(/^-?\d+(\.\d+)?\s*/, "").trim() || undefined;
+    const unit = valueMatch ? raw.replace(/^-?\d+(\.\d+)?\s*/, "").trim() || undefined : undefined;
     const referenceRange = match[3]?.trim();
     const status = detectStatus(line, number, referenceRange);
 
@@ -146,7 +168,7 @@ function parseColonValues(lines: string[]) {
 
 function parseNarrativeFindings(rawText: string) {
   const values: LabValue[] = [];
-  const normalizedText = rawText.replace(/[â€“–—]/g, "-");
+  const normalizedText = rawText.replace(/[–—−]/g, "-");
   const patterns = [
     { name: "Electrocardiogram (ECG/EKG)", regex: /Electrocardiogram\s*\(ECG\/EKG\):\s*(.+?)(?=\n|$)/i },
     { name: "Chest X-Ray", regex: /Chest X-Ray.*?:\s*(.+?)(?=\n|$)/i },
@@ -175,6 +197,35 @@ function parseNarrativeFindings(rawText: string) {
   return values;
 }
 
+function getReportDate(rawText: string) {
+  const isoDate = rawText.match(/\b(20\d{2}-\d{2}-\d{2})\b/)?.[1];
+  if (isoDate) return isoDate;
+
+  const longDate = rawText.match(/\b(?:Date of Visit|Date)\s*:?\s*([A-Za-z]+ \d{1,2}, \d{4})\b/i)?.[1];
+  if (!longDate) return null;
+  const match = longDate.match(/^([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})$/);
+  if (!match) return null;
+
+  const monthMap: Record<string, string> = {
+    january: "01",
+    february: "02",
+    march: "03",
+    april: "04",
+    may: "05",
+    june: "06",
+    july: "07",
+    august: "08",
+    september: "09",
+    october: "10",
+    november: "11",
+    december: "12"
+  };
+
+  const month = monthMap[match[1].toLowerCase()];
+  const day = match[2].padStart(2, "0");
+  return month ? `${match[3]}-${month}-${day}` : null;
+}
+
 function fallbackAnalyze(rawText: string): AnalysisResult {
   const lines = rawText
     .split(/\r?\n/)
@@ -189,7 +240,14 @@ function fallbackAnalyze(rawText: string): AnalysisResult {
       dedupedMap.set(key, value);
     }
   }
-  const values = [...dedupedMap.values()];
+
+  const rawSeen = new Set<string>();
+  const values = [...dedupedMap.values()].filter((value) => {
+    const rawKey = value.raw.toLowerCase();
+    if (rawSeen.has(rawKey)) return false;
+    rawSeen.add(rawKey);
+    return true;
+  });
 
   const grouped = panelMatchers
     .map((panel) => {
@@ -231,7 +289,7 @@ function fallbackAnalyze(rawText: string): AnalysisResult {
         : rawText.toLowerCase().includes("hospital")
           ? "Hospital"
           : "Unknown",
-    reportDate: rawText.match(/\b(20\d{2}-\d{2}-\d{2})\b/)?.[1] || null,
+    reportDate: getReportDate(rawText),
     disclaimer: MEDICAL_DISCLAIMER
   };
 }
