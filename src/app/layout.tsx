@@ -19,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const keywords = getSiteKeywords(settings);
 
   return {
+    applicationName: siteName,
     title: {
       default: siteTitle,
       template: `%s | ${siteName}`
@@ -26,6 +27,10 @@ export async function generateMetadata(): Promise<Metadata> {
     description: siteDescription,
     keywords,
     metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical: baseUrl
+    },
+    category: "health",
     icons: {
       icon: faviconUrl,
       shortcut: faviconUrl,

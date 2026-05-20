@@ -44,8 +44,13 @@ const faqs = [
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings<any>();
   const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
-  const title = settings?.siteTitle || DEFAULT_SITE_TITLE;
-  const description = settings?.siteDescription || DEFAULT_SITE_DESCRIPTION;
+  const title =
+    settings?.siteTitle ||
+    "Free Lab Report Analyzer & Medical Report Summary Tool | Upload PDF or Scan | LabExplain";
+  const description =
+    settings?.siteDescription ||
+    "Upload a PDF, scan a paper report, or paste your lab results to get a free lab report summary, medical report explanation, blood test overview, and clear doctor questions in plain English.";
+  const ogImage = settings?.ogImageUrl || "/og-default.svg";
 
   return {
     title,
@@ -57,31 +62,76 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
+      type: "website",
       url: baseUrl,
-      images: [{ url: settings?.ogImageUrl || "/og-default.svg" }]
+      images: [{ url: ogImage }]
     },
     twitter: {
       title,
       description,
-      images: [settings?.ogImageUrl || "/og-default.svg"]
+      images: [ogImage]
     }
   };
 }
 
 export default function HomePage() {
+  const siteUrl = "https://labexplain.online";
+  const appSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "LabExplain",
+    applicationCategory: "HealthApplication",
+    operatingSystem: "Web",
+    url: siteUrl,
+    description:
+      "Free lab report analyzer and medical report summary tool that explains uploaded PDFs, scans, and pasted blood test reports in plain English.",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD"
+    },
+    featureList: [
+      "Free lab report summary",
+      "Medical report explanation",
+      "Upload PDF lab report analyzer",
+      "Scan paper report with camera",
+      "Plain-English blood test overview",
+      "Doctor question generator"
+    ]
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer
+      }
+    }))
+  };
+
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(appSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+
       <section className="hero-glow overflow-hidden border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 sm:py-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12 lg:py-16">
           <div>
             <div className="mb-4 inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-800 sm:mb-5 sm:px-4 sm:py-2 sm:text-sm">
-              Made for real patient reports, including PDFs and paper printouts
+              Free lab report summary tool for uploaded PDFs, scans, and pasted lab results
             </div>
             <h1 className="font-syne max-w-3xl text-[2.65rem] font-extrabold leading-[0.95] tracking-tight text-slate-950 sm:text-5xl sm:leading-none lg:text-6xl">
               Free Medical Report Analyzer
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:mt-6 sm:text-lg sm:leading-8">
-              Get a lab report summary, medical report overview, and plain-English blood test explanation. Paste the report, upload the PDF, or scan a paper slip with your phone.
+              Get a free lab report summary, medical report overview, and plain-English blood test explanation. Paste the report, upload the PDF, or scan a paper slip with your phone to analyze your report online.
+            </p>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
+              Works for CBC, CMP, cholesterol, thyroid, vitamin, HbA1c, ferritin, iron, and many general medical report PDFs from Labcorp, Quest, MyChart, and hospital portals.
             </p>
             <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2">
               <div className="rounded-3xl border border-slate-200 bg-white p-4">
@@ -89,14 +139,14 @@ export default function HomePage() {
                   <Clipboard className="size-4" />
                   <span className="text-sm font-semibold">Paste text</span>
                 </div>
-                <p className="text-sm leading-6 text-slate-600">Best for copied results from MyChart, Quest, Labcorp, or your clinic portal.</p>
+                <p className="text-sm leading-6 text-slate-600">Best for copied results from MyChart, Quest, Labcorp, or your clinic portal when you want a quick free lab report explanation.</p>
               </div>
               <div className="rounded-3xl border border-slate-200 bg-white p-4">
                 <div className="mb-2 flex items-center gap-2 text-blue-700">
                   <Camera className="size-4" />
                   <span className="text-sm font-semibold">Scan paper report</span>
                 </div>
-                <p className="text-sm leading-6 text-slate-600">Take a photo of a printed lab slip if that is easier than typing everything out.</p>
+                <p className="text-sm leading-6 text-slate-600">Take a photo of a printed lab slip if that is easier than typing everything out and get a free medical report overview.</p>
               </div>
             </div>
             <p className="mt-4 text-sm leading-6 text-slate-500 sm:mt-5">Guest: 3 analyses/day. Free account: 10/day. Pro: unlimited history, trends, and export.</p>
@@ -105,7 +155,7 @@ export default function HomePage() {
           <AnalyzePageClient
             embedded
             title="Scan or Analyze Your Report"
-            description="Choose the easiest free option: paste text, select a lab PDF, or scan a medical report with your camera."
+            description="Choose the easiest free option: paste text, upload a lab PDF, or scan a medical report with your camera for a plain-English report explanation."
           />
         </div>
       </section>
@@ -113,7 +163,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
         <div className="mb-8 max-w-2xl sm:mb-10">
           <h2 className="font-syne text-2xl font-bold text-slate-950 sm:text-3xl">What you will get back</h2>
-          <p className="mt-3 text-slate-600">A visual, calm explanation of the full lab picture instead of a list of scary numbers.</p>
+          <p className="mt-3 text-slate-600">A visual, calm lab report summary and medical report explanation instead of a list of scary numbers.</p>
         </div>
         <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-8">
           <Card className="p-5 sm:p-8">
