@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import { getSession } from "@/lib/auth";
 import { MEDICAL_DISCLAIMER } from "@/lib/constants";
 import { checkRateLimit, recordUsage } from "@/lib/rate-limit";
 
 const gemini = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
+const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
 const MEDICAL_KEYWORDS = [
   "lab",
@@ -46,7 +48,8 @@ const MEDICAL_KEYWORDS = [
   "pain",
   "fever",
   "fatigue",
-  "hospital"
+  "hospital",
+  "heart rate"
 ];
 
 function isRelevantMedicalMessage(message: string) {
@@ -61,6 +64,10 @@ function getDeterministicDoctorReply(message: string) {
     normalized.includes("what does cbc stand for") ||
     normalized.includes("cbc stands for") ||
     normalized.includes("what is cbc") ||
+    normalized.includes("what does cbc mean") ||
+    normalized.includes("what does cbc means") ||
+    normalized.includes("cbc mean") ||
+    normalized.includes("cbc means") ||
     normalized === "cbc"
   ) {
     return "CBC stands for Complete Blood Count. It is a common blood test that looks at parts of your blood such as white blood cells, red blood cells, hemoglobin, hematocrit, and platelets. Doctors often use it as a general overview to look for patterns like infection, anemia, inflammation, or other changes that may need follow-up.";
@@ -94,18 +101,6 @@ function quotaMessage(isGuest: boolean, isFreeUser: boolean) {
 }
 
 async function generateDoctorReply(history: Array<{ role: "user" | "assistant"; content: string }>) {
-  if (!gemini) {
-    return `I can help with general lab result and medical report questions in plain English. ${MEDICAL_DISCLAIMER}`;
-  }
-
-  const model = gemini.getGenerativeModel({
-    model: "gemini-1.5-flash",
-    generationConfig: {
-      temperature: 0.2,
-      maxOutputTokens: 500
-    }
-  });
-
   const conversation = history
     .slice(-8)
     .map((entry) => `${entry.role === "user" ? "User" : "Assistant"}: ${entry.content}`)
@@ -128,9 +123,55 @@ ${conversation}
 Write the next assistant reply in 2 to 5 sentences.
 `;
 
-  const result = await model.generateContent(prompt);
-  const reply = result.response.text().trim();
-  return reply || `I can help explain medical reports in plain English. ${MEDICAL_DISCLAIMER}`;
+  if (gemini) {
+    try {
+      const model = gemini.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 500
+        }
+      });
+
+      const result = await model.generateContent(prompt);
+      const reply = result.response.text().trim();
+      if (reply) {
+        return reply;
+      }
+    } catch {
+      // Try Groq next.
+    }
+  }
+
+  if (groq) {
+    try {
+      const completion = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.2,
+        max_tokens: 500,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are LabExplain's AI Doctor chat assistant. Answer only medical, lab, symptom, and report-related questions in plain English. Do not diagnose, prescribe, or claim certainty. Keep replies calm, helpful, concise, and educational."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      });
+
+      const reply = completion.choices[0]?.message?.content?.trim();
+      if (reply) {
+        return reply;
+      }
+    } catch {
+      // Fall through to static fallback.
+    }
+  }
+
+  return `I can help explain medical reports in plain English. ${MEDICAL_DISCLAIMER}`;
 }
 
 export async function POST(request: NextRequest) {
