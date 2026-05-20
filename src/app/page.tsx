@@ -1,16 +1,12 @@
-import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
   Camera,
-  CheckCircle2,
   Clipboard,
-  FileUp,
   HeartPulse,
   HelpCircle,
   MessageSquareQuote,
   ShieldCheck,
-  Sparkles,
   Upload
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -46,18 +42,18 @@ export default function HomePage() {
   return (
     <div>
       <section className="hero-glow overflow-hidden border-b border-slate-200 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 sm:py-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12 lg:py-16">
           <div>
-            <div className="mb-5 inline-flex rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-800">
+            <div className="mb-4 inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-800 sm:mb-5 sm:px-4 sm:py-2 sm:text-sm">
               Made for real patient reports, including PDFs and paper printouts
             </div>
-            <h1 className="font-syne max-w-3xl text-5xl font-extrabold tracking-tight text-slate-950 sm:text-6xl">
+            <h1 className="font-syne max-w-3xl text-[2.65rem] font-extrabold leading-[0.95] tracking-tight text-slate-950 sm:text-5xl sm:leading-none lg:text-6xl">
               Understand Your Lab Report Without The Confusion
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:mt-6 sm:text-lg sm:leading-8">
               Paste the report, upload the PDF, or take a picture of the paper slip. LabExplain turns hard-to-read lab values into simple explanations you can actually follow.
             </p>
-            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2">
               <div className="rounded-3xl border border-slate-200 bg-white p-4">
                 <div className="mb-2 flex items-center gap-2 text-blue-700">
                   <Clipboard className="size-4" />
@@ -73,7 +69,7 @@ export default function HomePage() {
                 <p className="text-sm leading-6 text-slate-600">Take a photo of a printed lab slip if that is easier than typing everything out.</p>
               </div>
             </div>
-            <p className="mt-5 text-sm text-slate-500">Guest: 3 analyses/day. Free account: 10/day. Pro: unlimited history, trends, and export.</p>
+            <p className="mt-4 text-sm leading-6 text-slate-500 sm:mt-5">Guest: 3 analyses/day. Free account: 10/day. Pro: unlimited history, trends, and export.</p>
           </div>
 
           <AnalyzePageClient
@@ -84,19 +80,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <div className="mb-10 max-w-2xl">
-          <h2 className="font-syne text-3xl font-bold text-slate-950">What you will get back</h2>
+      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+        <div className="mb-8 max-w-2xl sm:mb-10">
+          <h2 className="font-syne text-2xl font-bold text-slate-950 sm:text-3xl">What you will get back</h2>
           <p className="mt-3 text-slate-600">A visual, calm explanation of the full lab picture instead of a list of scary numbers.</p>
         </div>
-        <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-          <Card className="p-6 sm:p-8">
+        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-8">
+          <Card className="p-5 sm:p-8">
             <div className="mb-6 flex items-center gap-3">
               <div className="rounded-2xl bg-cyan-100 p-3 text-cyan-800">
                 <HeartPulse className="size-6" />
               </div>
               <div>
-                <h2 className="font-syne text-2xl font-bold text-slate-950">Why people use LabExplain</h2>
+                <h2 className="font-syne text-xl font-bold text-slate-950 sm:text-2xl">Why people use LabExplain</h2>
                 <p className="text-sm text-slate-500">A calmer, faster way to understand a report before the doctor visit.</p>
               </div>
             </div>
@@ -111,17 +107,17 @@ export default function HomePage() {
           </Card>
 
           <Card className="overflow-hidden p-0">
-            <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+            <div className="border-b border-slate-200 bg-slate-50 px-5 py-4 sm:px-6">
               <div className="mb-2 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
                 Visual Results Preview
               </div>
-              <h3 className="font-syne text-2xl font-bold text-slate-950">See the kind of output patients get</h3>
+              <h3 className="font-syne text-xl font-bold text-slate-950 sm:text-2xl">See the kind of output patients get</h3>
             </div>
-            <div className="space-y-4 p-6">
+            <div className="space-y-4 p-4 sm:p-6">
               <div className="rounded-3xl border border-slate-200 bg-white p-5">
-                <div className="mb-3 flex items-center justify-between gap-3">
+                <div className="mb-3 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                   <div>
-                    <p className="font-syne text-xl font-bold text-slate-950">Overall Summary</p>
+                    <p className="font-syne text-lg font-bold text-slate-950 sm:text-xl">Overall Summary</p>
                     <p className="text-sm text-slate-500">Simple language, not medical jargon</p>
                   </div>
                   <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
@@ -168,10 +164,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-slate-200 bg-slate-50 py-20">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="mb-10 max-w-2xl">
-            <h2 className="font-syne text-3xl font-bold text-slate-950">Three easy ways to start</h2>
+      <section className="border-y border-slate-200 bg-slate-50 py-14 sm:py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mb-8 max-w-2xl sm:mb-10">
+            <h2 className="font-syne text-2xl font-bold text-slate-950 sm:text-3xl">Three easy ways to start</h2>
             <p className="mt-3 text-slate-600">Designed for people who want the simplest possible path from report to explanation.</p>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
@@ -190,22 +186,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <div className="mb-12 text-center">
+      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+        <div className="mb-10 text-center sm:mb-12">
           <HelpCircle className="mx-auto mb-4 size-8 text-blue-700" />
-          <h2 className="font-syne text-3xl font-bold text-slate-950">Frequently Asked Questions</h2>
+          <h2 className="font-syne text-2xl font-bold text-slate-950 sm:text-3xl">Frequently Asked Questions</h2>
           <p className="mt-3 text-slate-600">Short answers for the questions most people have before using the tool.</p>
         </div>
         <div className="mx-auto max-w-4xl space-y-4">
           {faqs.map((faq) => (
             <details key={faq.question} className="group rounded-3xl border border-slate-200 bg-white p-0 shadow-sm">
-              <summary className="cursor-pointer list-none px-6 py-5 font-syne text-lg font-bold text-slate-950">
+              <summary className="cursor-pointer list-none px-5 py-4 font-syne text-base font-bold text-slate-950 sm:px-6 sm:py-5 sm:text-lg">
                 <div className="flex items-center justify-between gap-4">
                   <span>{faq.question}</span>
                   <ArrowRight className="size-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
                 </div>
               </summary>
-              <div className="border-t border-slate-100 px-6 py-5 text-sm leading-7 text-slate-600">
+              <div className="border-t border-slate-100 px-5 py-4 text-sm leading-7 text-slate-600 sm:px-6 sm:py-5">
                 {faq.answer}
               </div>
             </details>

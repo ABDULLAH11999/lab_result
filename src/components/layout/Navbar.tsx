@@ -44,14 +44,14 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-3">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5 sm:gap-3">
           <div className="rounded-2xl bg-blue-600 p-2 text-white">
             <FlaskConical className="size-5" />
           </div>
-          <div>
-            <div className="font-syne text-lg font-bold text-slate-950">LabExplain</div>
-            <div className="text-xs text-slate-500">Plain-English lab explanations</div>
+          <div className="min-w-0">
+            <div className="truncate font-syne text-base font-bold text-slate-950 sm:text-lg">LabExplain</div>
+            <div className="truncate text-[11px] text-slate-500 sm:text-xs">Plain-English lab explanations</div>
           </div>
         </Link>
 
@@ -94,13 +94,13 @@ export default function Navbar() {
           )}
         </div>
 
-        <button className="md:hidden" onClick={() => setOpen((current) => !current)} aria-label="Toggle menu">
+        <button className="rounded-xl p-2 md:hidden" onClick={() => setOpen((current) => !current)} aria-label="Toggle menu">
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-slate-200 px-6 py-4 md:hidden">
+        <div className="border-t border-slate-200 px-4 py-4 md:hidden">
           <div className="flex flex-col gap-3">
             {links.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setOpen(false)} className="text-sm text-slate-700">

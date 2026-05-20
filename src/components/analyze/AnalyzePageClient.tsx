@@ -75,7 +75,7 @@ export default function AnalyzePageClient({
   sampleEnabled = false,
   embedded = false,
   title = "Analyze Your Lab Results",
-  description = "Paste the text from your report and we’ll explain the full picture in plain English."
+  description = "Paste the text from your report and we will explain the full picture in plain English."
 }: AnalyzePageClientProps) {
   const [text, setText] = useState(sampleEnabled ? SAMPLE_REPORT : "");
   const [loading, setLoading] = useState(false);
@@ -156,30 +156,30 @@ export default function AnalyzePageClient({
   }
 
   return (
-    <div className={embedded ? "" : "mx-auto max-w-4xl px-6 py-14"}>
+    <div className={embedded ? "" : "mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14"}>
       {!embedded ? (
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-3xl bg-blue-100">
-            <FlaskConical className="size-8 text-blue-700" />
+        <div className="mb-6 text-center sm:mb-8">
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-3xl bg-blue-100 sm:size-16">
+            <FlaskConical className="size-7 text-blue-700 sm:size-8" />
           </div>
-          <h1 className="font-syne text-4xl font-bold text-slate-950">{title}</h1>
-          <p className="mt-3 text-slate-600">{description}</p>
+          <h1 className="font-syne text-3xl font-bold text-slate-950 sm:text-4xl">{title}</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">{description}</p>
         </div>
       ) : null}
 
-      <div className={`rounded-[28px] border border-slate-200 bg-white shadow-sm ${embedded ? "p-5 md:p-6" : "p-6"}`}>
+      <div className={`rounded-[24px] border border-slate-200 bg-white shadow-sm sm:rounded-[28px] ${embedded ? "p-4 sm:p-5 md:p-6" : "p-4 sm:p-6"}`}>
         {embedded ? (
-          <div className="mb-5">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+          <div className="mb-4 sm:mb-5">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700 sm:text-xs">
               <Sparkles className="size-3.5" />
               Works with pasted text, uploaded PDFs, and phone photos
             </div>
-            <h2 className="font-syne text-2xl font-bold text-slate-950">{title}</h2>
+            <h2 className="font-syne text-xl font-bold text-slate-950 sm:text-2xl">{title}</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
           </div>
         ) : null}
 
-        <div className="mb-4 grid gap-3 sm:grid-cols-3">
+        <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-3">
           <button
             type="button"
             onClick={async () => {
@@ -190,28 +190,28 @@ export default function AnalyzePageClient({
                 setError("Clipboard access was blocked. Please paste manually or use upload.");
               }
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            className="inline-flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 px-2 py-3 text-center text-[11px] font-semibold text-slate-700 hover:bg-slate-100 sm:min-h-0 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
           >
             <ClipboardPaste className="size-4" />
-            Paste Report
+            <span className="leading-4 sm:leading-normal">Paste text</span>
           </button>
 
           <button
             type="button"
             onClick={() => uploadInputRef.current?.click()}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            className="inline-flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 px-2 py-3 text-center text-[11px] font-semibold text-slate-700 hover:bg-slate-100 sm:min-h-0 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
           >
             <Upload className="size-4" />
-            Upload File
+            <span className="leading-4 sm:leading-normal">Select file</span>
           </button>
 
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            className="inline-flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 px-2 py-3 text-center text-[11px] font-semibold text-slate-700 hover:bg-slate-100 sm:min-h-0 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
           >
             <Camera className="size-4" />
-            Scan With Camera
+            <span className="leading-4 sm:leading-normal">Scan camera</span>
           </button>
         </div>
 
@@ -232,7 +232,7 @@ export default function AnalyzePageClient({
           onChange={(event) => void handleFileSelection(event.target.files?.[0])}
         />
 
-        <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="mb-3 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-3">
           <label className="text-sm font-semibold text-slate-900">Lab report text</label>
           <button onClick={() => setText(SAMPLE_REPORT)} className="text-xs font-semibold text-blue-700">
             Use sample report
@@ -242,7 +242,7 @@ export default function AnalyzePageClient({
         <textarea
           value={text}
           onChange={(event) => setText(event.target.value)}
-          className={`w-full rounded-3xl border border-slate-200 bg-slate-50 p-5 font-mono text-sm leading-7 text-slate-800 outline-none ring-0 ${embedded ? "h-72 md:h-80" : "h-96"}`}
+          className={`w-full rounded-[22px] border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-6 text-slate-800 outline-none ring-0 sm:rounded-3xl sm:p-5 sm:leading-7 ${embedded ? "h-64 sm:h-72 md:h-80" : "h-80 sm:h-96"}`}
           placeholder="You can paste the report text here, upload a PDF, or take a photo of the paper report."
         />
 
@@ -252,7 +252,7 @@ export default function AnalyzePageClient({
               ? `${text.length.toLocaleString()} characters ready`
               : "Best results come from clear photos and reports that include reference ranges"}
           </span>
-          <span className="inline-flex items-center gap-2">
+          <span className="inline-flex flex-wrap items-center gap-2">
             <FileImage className="size-3.5" />
             Images
             <FileText className="size-3.5" />
@@ -280,18 +280,18 @@ export default function AnalyzePageClient({
         <button
           onClick={submit}
           disabled={loading || uploading}
-          className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-lg font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+          className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-5 py-3.5 text-base font-semibold text-white hover:bg-blue-700 disabled:opacity-60 sm:px-6 sm:py-4 sm:text-lg"
         >
           {loading ? "Analyzing your results..." : "Explain My Lab Results"}
         </button>
 
-        <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-3">
+        <div className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-3 sm:gap-3">
           {[
             "Paste from MyChart, Quest, or Labcorp",
             "Upload a PDF or a photo of the paper report",
             "Get calm explanations and doctor questions"
           ].map((item) => (
-            <div key={item} className="rounded-2xl bg-slate-50 p-3 text-center leading-5">
+            <div key={item} className="rounded-2xl bg-slate-50 px-3 py-3 text-center text-xs leading-5 sm:text-sm">
               {item}
             </div>
           ))}

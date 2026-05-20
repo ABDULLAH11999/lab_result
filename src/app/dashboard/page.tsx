@@ -9,7 +9,7 @@ export default async function DashboardPage() {
   if (!session) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-20 text-center">
-        <h1 className="font-syne text-4xl font-bold text-slate-950">Your Dashboard</h1>
+        <h1 className="font-syne text-3xl font-bold text-slate-950 sm:text-4xl">Your Dashboard</h1>
         <p className="mt-4 text-slate-600">Create a free account to save your recent reports and follow trends over time.</p>
         <Link href="/auth/signup" className="mt-6 inline-flex rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white">Create free account</Link>
       </div>
@@ -21,9 +21,9 @@ export default async function DashboardPage() {
   ));
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-14">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8">
-        <h1 className="font-syne text-4xl font-bold text-slate-950">Welcome back</h1>
+        <h1 className="font-syne text-3xl font-bold text-slate-950 sm:text-4xl">Welcome back</h1>
         <p className="mt-2 text-slate-600">Saved reports, trend prep, and plan status for {session.email}.</p>
       </div>
 
@@ -54,7 +54,7 @@ export default async function DashboardPage() {
                 <h2 className="font-syne text-xl font-bold text-slate-950">{report.reportName}</h2>
                 <p className="mt-1 text-sm text-slate-500">{report.panelTypes.join(" · ")} · {new Date(report.createdAt).toLocaleDateString("en-US")}</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{report.concernLevel}</span>
                 <Link href={`/results/${report.id}`} className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white">View</Link>
               </div>
