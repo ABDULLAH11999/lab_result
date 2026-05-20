@@ -14,18 +14,26 @@ const panelMatchers = [
   { key: "Lipid Panel", name: "Lipid Panel", matches: ["cholesterol", "ldl", "hdl", "triglycerides", "non-hdl"] },
   { key: "Thyroid", name: "Thyroid", matches: ["tsh", "t4", "t3"] },
   { key: "Diabetes", name: "Diabetes", matches: ["hba1c", "a1c", "insulin"] },
-  { key: "Vitamins", name: "Vitamin & Mineral Levels", matches: ["vitamin d", "vitamin b12", "folate", "iron", "ferritin", "magnesium"] }
+  { key: "Vitamins", name: "Vitamin & Mineral Levels", matches: ["vitamin d", "vitamin b12", "folate", "iron", "ferritin", "magnesium"] },
+  { key: "Vitals", name: "Vitals", matches: ["blood pressure", "heart rate", "spo2", "oxygen", "temperature", "respiratory rate", "bmi", "weight", "height"] },
+  { key: "Diagnostic Findings", name: "Diagnostic Findings", matches: ["electrocardiogram", "ecg", "ekg", "chest x-ray", "x-ray", "impression", "diagnosis", "assessment"] }
 ];
 
+function normalizeRange(range?: string) {
+  return range?.replace(/[â€“–—]/g, "-");
+}
+
 function detectStatus(line: string, value?: number, range?: string): ValueStatus {
-  const lower = line.toLowerCase();
+  const lower = line.toLowerCase().replace(/prehypertension/g, "high").replace(/elevated/g, "high");
   if (lower.includes("critical low")) return "critical_low";
   if (lower.includes("critical high")) return "critical_high";
+  if (lower.includes(" abnormal")) return "high";
   if (lower.includes(" low")) return "low";
   if (lower.includes(" high")) return "high";
 
-  if (value !== undefined && range) {
-    const match = range.match(/(\d+(\.\d+)?)\s*[-–]\s*(\d+(\.\d+)?)/);
+  const normalizedRange = normalizeRange(range);
+  if (value !== undefined && normalizedRange) {
+    const match = normalizedRange.match(/(\d+(\.\d+)?)\s*-\s*(\d+(\.\d+)?)/);
     if (match) {
       const min = Number(match[1]);
       const max = Number(match[3]);
@@ -37,54 +45,163 @@ function detectStatus(line: string, value?: number, range?: string): ValueStatus
   return "normal";
 }
 
-function fallbackAnalyze(rawText: string): AnalysisResult {
-  const lines = rawText
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
+function buildValue(input: {
+  name: string;
+  raw: string;
+  number?: number;
+  unit?: string;
+  referenceRange?: string;
+  status: ValueStatus;
+  explanation?: string;
+  whyItMatters?: string;
+  whatAffectsIt?: string | null;
+}): LabValue {
+  return {
+    name: input.name,
+    raw: input.raw,
+    number: input.number,
+    unit: input.unit,
+    referenceRange: input.referenceRange,
+    status: input.status,
+    explanation:
+      input.explanation ||
+      (input.status === "normal"
+        ? `${input.name} appears to be within the usual range or is described as reassuring in the report.`
+        : `${input.name} is flagged or described as needing follow-up, so it should be reviewed with your doctor in the context of the full report.`),
+    whyItMatters:
+      input.whyItMatters ||
+      `${input.name} is one part of the overall clinical picture and is best interpreted alongside your symptoms, medical history, and the rest of the report.`,
+    whatAffectsIt:
+      input.whatAffectsIt === undefined
+        ? input.status === "normal"
+          ? null
+          : "Results like this can change because of illness, medications, hydration, inflammation, stress, activity, or the reason the test was ordered."
+        : input.whatAffectsIt
+  };
+}
 
+function parseVitals(lines: string[]) {
+  const values: LabValue[] = [];
+  const vitalPatterns = [
+    /^(Blood Pressure)\s+([0-9]{2,3}\/[0-9]{2,3}\s*mmHg)\s+(.+?)\s+(Normal|Prehypertension|High|Low)$/i,
+    /^(Heart Rate)\s+([0-9]{2,3}\s*bpm)\s+(.+?)\s+(Normal|High|Low)$/i,
+    /^(SpO2(?:\s*\(Oxygen\))?)\s+([0-9]{2,3}%.*)\s+(.+?)\s+(Normal|High|Low)$/i,
+    /^(Temperature)\s+([0-9]{2}(?:\.[0-9])?°[CF].*)\s+(.+?)\s+(Normal|High|Low)$/i
+  ];
+
+  for (const line of lines) {
+    for (const pattern of vitalPatterns) {
+      const match = line.match(pattern);
+      if (!match) continue;
+
+      values.push(
+        buildValue({
+          name: match[1].trim(),
+          raw: match[2].trim(),
+          referenceRange: match[3].trim(),
+          status: detectStatus(match[4], undefined, match[3].trim()),
+          explanation:
+            match[4].toLowerCase() === "normal"
+              ? `${match[1].trim()} is listed in the expected range for this visit.`
+              : `${match[1].trim()} is labeled outside the ideal range in this report and deserves follow-up in context with the rest of the visit.`,
+          whyItMatters: `${match[1].trim()} helps describe how your body was functioning during this visit and can guide the clinician's interpretation of your symptoms.`
+        })
+      );
+      break;
+    }
+  }
+
+  return values;
+}
+
+function parseColonValues(lines: string[]) {
   const values: LabValue[] = [];
 
   for (const line of lines) {
-    const match = line.match(/^([A-Za-z0-9\/ %+-]+):\s*([^()]+?)(?:\s*\(Reference:\s*([^)]+)\))?(?:\s+(LOW|HIGH|CRITICAL LOW|CRITICAL HIGH))?$/i);
+    const match = line.match(/^([A-Za-z0-9\/ %()+-]+):\s*([^()]+?)(?:\s*\(Reference:\s*([^)]+)\))?(?:\s+(LOW|HIGH|CRITICAL LOW|CRITICAL HIGH))?$/i);
     if (!match) continue;
 
     const name = match[1].trim();
-    const raw = match[2].trim();
+    const raw = match[2].replace(/\s+/g, " ").trim();
     const valueMatch = raw.match(/-?\d+(\.\d+)?/);
     const number = valueMatch ? Number(valueMatch[0]) : undefined;
     const unit = raw.replace(/^-?\d+(\.\d+)?\s*/, "").trim() || undefined;
     const referenceRange = match[3]?.trim();
     const status = detectStatus(line, number, referenceRange);
 
-    values.push({
-      name,
-      raw,
-      number,
-      unit,
-      referenceRange,
-      status,
-      explanation:
-        status === "normal"
-          ? `${name} appears to be within the reference range shown on your report.`
-          : `${name} is flagged on your report and should be reviewed with your doctor in context with the rest of your labs.`,
-      whyItMatters: `${name} is one part of the overall lab picture and is best interpreted alongside your symptoms, medications, and the rest of the panel.`,
-      whatAffectsIt:
-        status === "normal" ? null : "Lab values can change because of health conditions, medications, hydration, diet, recent illness, exercise, or lab-specific differences."
-    });
+    values.push(
+      buildValue({
+        name,
+        raw,
+        number,
+        unit,
+        referenceRange,
+        status
+      })
+    );
   }
 
-  const grouped = panelMatchers.map((panel) => {
-    const panelValues = values.filter((value) =>
-      panel.matches.some((term) => value.name.toLowerCase().includes(term))
-    );
-    return panelValues.length
-      ? { name: panel.name, abbreviation: panel.key, values: panelValues }
-      : null;
-  }).filter(Boolean) as any[];
+  return values;
+}
 
-  const usedNames = new Set(grouped.flatMap((panel) => panel.values.map((value: LabValue) => value.name)));
-  const otherValues = values.filter((value) => !usedNames.has(value.name));
+function parseNarrativeFindings(rawText: string) {
+  const values: LabValue[] = [];
+  const normalizedText = rawText.replace(/[â€“–—]/g, "-");
+  const patterns = [
+    { name: "Electrocardiogram (ECG/EKG)", regex: /Electrocardiogram\s*\(ECG\/EKG\):\s*(.+?)(?=\n|$)/i },
+    { name: "Chest X-Ray", regex: /Chest X-Ray.*?:\s*(.+?)(?=\n|$)/i },
+    { name: "Basic Metabolic Panel", regex: /Basic Metabolic Panel\s*\(BMP\):\s*(.+?)(?=\n|$)/i },
+    { name: "Clinical Impression", regex: /Clinical Impression\s*&\s*Diagnosis\s*([\s\S]+?)(?=\n\s*\d+\.\s*Plan|\n\s*5\.\s*Plan|$)/i },
+    { name: "Plan & Recommendations", regex: /Plan\s*&\s*Recommendations\s*([\s\S]+?)(?=Dr\.\s|Disclaimer:|$)/i }
+  ];
+
+  for (const pattern of patterns) {
+    const match = normalizedText.match(pattern.regex);
+    if (!match?.[1]) continue;
+
+    const raw = match[1].replace(/\s+/g, " ").trim();
+    values.push(
+      buildValue({
+        name: pattern.name,
+        raw,
+        status: detectStatus(raw),
+        explanation: `${pattern.name} is described in the report narrative rather than as a standalone lab number.`,
+        whyItMatters: `${pattern.name} helps explain the clinician's findings, interpretation, or follow-up plan from this report.`,
+        whatAffectsIt: null
+      })
+    );
+  }
+
+  return values;
+}
+
+function fallbackAnalyze(rawText: string): AnalysisResult {
+  const lines = rawText
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const combinedValues = [...parseVitals(lines), ...parseColonValues(lines), ...parseNarrativeFindings(rawText)];
+  const dedupedMap = new Map<string, LabValue>();
+  for (const value of combinedValues) {
+    const key = `${value.name.toLowerCase()}::${value.raw.toLowerCase()}`;
+    if (!dedupedMap.has(key)) {
+      dedupedMap.set(key, value);
+    }
+  }
+  const values = [...dedupedMap.values()];
+
+  const grouped = panelMatchers
+    .map((panel) => {
+      const panelValues = values.filter((value) =>
+        panel.matches.some((term) => value.name.toLowerCase().includes(term))
+      );
+      return panelValues.length ? { name: panel.name, abbreviation: panel.key, values: panelValues } : null;
+    })
+    .filter(Boolean) as Array<{ name: string; abbreviation: string; values: LabValue[] }>;
+
+  const usedNames = new Set(grouped.flatMap((panel) => panel.values.map((value) => `${value.name}::${value.raw}`)));
+  const otherValues = values.filter((value) => !usedNames.has(`${value.name}::${value.raw}`));
   if (otherValues.length) {
     grouped.push({ name: "Other", abbreviation: "Other", values: otherValues });
   }
@@ -95,16 +212,16 @@ function fallbackAnalyze(rawText: string): AnalysisResult {
   return {
     overallSummary:
       values.length > 0
-        ? `We identified ${values.length} lab value${values.length === 1 ? "" : "s"} in your report. ${abnormalCount === 0 ? "Nothing appears flagged in the pasted text, but your doctor should still review the full report in context." : `${abnormalCount} value${abnormalCount === 1 ? " is" : "s are"} outside the range or flagged, so it is worth reviewing the full pattern with your doctor.`}`
-        : "We could not clearly parse the values in the pasted text. Please try pasting the lab section again.",
+        ? `We identified ${values.length} measurable value${values.length === 1 ? "" : "s"} or named finding${values.length === 1 ? "" : "s"} in your report. ${abnormalCount === 0 ? "Most extracted items do not appear clearly flagged, but your doctor should still review the full report in context." : `${abnormalCount} item${abnormalCount === 1 ? " is" : "s are"} flagged or outside the usual range, so it is worth reviewing the full pattern with your doctor.`}`
+        : "We could not clearly parse the main findings in this uploaded report. Please try uploading again or paste the text directly.",
     concernLevel,
     concernScore: Math.min(abnormalCount * 18, 80),
     panels: grouped,
     allValues: values,
     doctorQuestions: [
-      "Which results matter most for my age, symptoms, and medical history?",
-      "Are any of these abnormal values related to each other?",
-      "Should any of these labs be repeated or followed over time?"
+      "Which findings matter most for my symptoms and medical history?",
+      "Are any of these measurements or findings related to each other?",
+      "Should any labs, vitals, imaging, or follow-up tests be repeated over time?"
     ],
     detectedPanels: grouped.map((panel) => panel.abbreviation),
     labSource: rawText.toLowerCase().includes("quest")

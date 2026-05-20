@@ -48,11 +48,37 @@ async function extractTextFromPdf(file: File) {
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent();
-    const pageText = content.items
-      .map((item: any) => ("str" in item ? item.str : ""))
-      .join(" ");
+    const textItems = content.items
+      .filter((item: any) => "str" in item && item.str?.trim())
+      .map((item: any) => ({
+        text: item.str.trim(),
+        x: typeof item.transform?.[4] === "number" ? item.transform[4] : 0,
+        y: typeof item.transform?.[5] === "number" ? item.transform[5] : 0
+      }));
 
-    combined += `${pageText}\n`;
+    const rows: Array<{ y: number; items: Array<{ text: string; x: number }> }> = [];
+    for (const item of textItems) {
+      const row = rows.find((candidate) => Math.abs(candidate.y - item.y) < 3);
+      if (row) {
+        row.items.push({ text: item.text, x: item.x });
+      } else {
+        rows.push({ y: item.y, items: [{ text: item.text, x: item.x }] });
+      }
+    }
+
+    const pageLines = rows
+      .sort((a, b) => b.y - a.y)
+      .map((row) =>
+        row.items
+          .sort((a, b) => a.x - b.x)
+          .map((item) => item.text)
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim()
+      )
+      .filter(Boolean);
+
+    combined += `\n--- PAGE ${pageNumber} ---\n${pageLines.join("\n")}\n`;
   }
 
   return combined.trim();
