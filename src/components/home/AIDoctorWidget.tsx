@@ -11,7 +11,7 @@ type ChatMessage = {
 };
 
 export default function AIDoctorWidget() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [cta, setCta] = useState<{ label: string; href: string } | null>(null);
