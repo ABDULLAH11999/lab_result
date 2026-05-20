@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       tags: body.tags || body.keywords || [],
       seoTitle: body.seoTitle || body.title,
       seoDescription: body.seoDescription || body.excerpt,
-      canonicalUrl: body.canonicalUrl || `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/blog/${slug}`,
+      canonicalUrl: body.canonicalUrl || `${(getSettings<any>()?.canonicalUrl || process.env.NEXT_PUBLIC_APP_URL || "https://labexplain.online").replace(/\/$/, "")}/blog/${slug}`,
       publishedAt: new Date().toISOString().slice(0, 10),
       content: body.content,
       cover: body.cover || ""

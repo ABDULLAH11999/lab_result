@@ -30,7 +30,7 @@ export default function ContactPage() {
   }
 
   if (sent) {
-    return <div className="mx-auto max-w-xl px-6 py-24 text-center text-slate-700">Your message was sent. We’ll get back to you soon.</div>;
+    return <div className="mx-auto max-w-xl px-6 py-24 text-center text-slate-700">Your message was sent. We will get back to you soon.</div>;
   }
 
   return (

@@ -323,7 +323,7 @@ export default function AnalyzePageClient({
               </h3>
               
               <p className="mt-4 text-sm leading-6 text-slate-600 sm:text-base">
-                You've completed your <span className="font-bold text-slate-950">3 free guest attempts</span> for today. Sign up for a free LabExplain account to instantly get:
+                You have completed your <span className="font-bold text-slate-950">3 free guest attempts</span> for today. Sign up for a free LabExplain account to instantly get:
               </p>
 
               <div className="mx-auto mt-6 max-w-md rounded-2xl bg-slate-50 p-4 text-left border border-slate-100">

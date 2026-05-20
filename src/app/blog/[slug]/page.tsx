@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getBlogs } from "@/lib/db";
-import { APP_URL, MEDICAL_DISCLAIMER } from "@/lib/constants";
+import { getBlogs, getSettings } from "@/lib/db";
+import { MEDICAL_DISCLAIMER } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
+import { normalizeBaseUrl } from "@/lib/seo";
 
 export async function generateStaticParams() {
   return getBlogs().map((post) => ({ slug: post.slug }));
@@ -12,13 +13,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = getBlogs().find((entry) => entry.slug === slug);
   if (!post) return {};
+  const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
+  const canonicalUrl = post.canonicalUrl?.replace(/^https?:\/\/localhost:\d+/, baseUrl) || `${baseUrl}/blog/${post.slug}`;
 
   return {
     title: post.seoTitle || post.title,
     description: post.seoDescription || post.excerpt,
     keywords: post.keywords,
     alternates: {
-      canonical: post.canonicalUrl || `${APP_URL}/blog/${post.slug}`
+      canonical: canonicalUrl
     }
   };
 }
@@ -27,6 +30,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const post = getBlogs().find((entry) => entry.slug === slug);
   if (!post) notFound();
+  const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
+  const canonicalUrl = post.canonicalUrl?.replace(/^https?:\/\/localhost:\d+/, baseUrl) || `${baseUrl}/blog/${post.slug}`;
 
   const schema = {
     "@context": "https://schema.org",
@@ -37,7 +42,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     author: { "@type": "Organization", name: "LabExplain" },
     publisher: { "@type": "Organization", name: "LabExplain" },
     keywords: post.keywords.join(", "),
-    mainEntityOfPage: post.canonicalUrl || `${APP_URL}/blog/${post.slug}`
+    mainEntityOfPage: canonicalUrl
   };
 
   return (

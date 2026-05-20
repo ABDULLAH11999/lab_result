@@ -45,7 +45,9 @@ export function buildSitemapXml() {
 
   const blogXml = blogs
     .map((blog: any) => {
-      const canonical = (blog.canonicalUrl || `${baseUrl}/blog/${blog.slug}`).replace(/\/$/, "");
+      const canonical = (blog.canonicalUrl || `${baseUrl}/blog/${blog.slug}`)
+        .replace(/^https?:\/\/localhost:\d+/, baseUrl)
+        .replace(/\/$/, "");
       const lastmod = blog.publishedAt || today;
       return `
   <url>

@@ -17,27 +17,32 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
 
-    const data = await res.json();
-    setLoading(false);
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error || "Could not start signup.");
-      return;
+      if (!res.ok) {
+        setError(data.error || "Could not start signup.");
+        return;
+      }
+
+      if (data.directLogin) {
+        router.push(selectedPlan === "pro" ? "/pricing" : "/dashboard");
+        return;
+      }
+
+      setOtpHint(data.previewCode ? `Development code: ${data.previewCode}` : "Check your email for the code.");
+      setStep("otp");
+    } catch {
+      setError("Signup could not connect. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    if (data.directLogin) {
-      router.push(selectedPlan === "pro" ? "/pricing" : "/dashboard");
-      return;
-    }
-
-    setOtpHint(data.previewCode ? `Development code: ${data.previewCode}` : "Check your email for the code.");
-    setStep("otp");
   }
 
   async function verifyOtp(event: React.FormEvent) {
@@ -45,21 +50,26 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
-    const res = await fetch("/api/auth/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
 
-    const data = await res.json();
-    setLoading(false);
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error || "Invalid code.");
-      return;
+      if (!res.ok) {
+        setError(data.error || "Invalid code.");
+        return;
+      }
+
+      router.push(selectedPlan === "pro" ? "/pricing" : "/dashboard");
+    } catch {
+      setError("Verification could not connect. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    router.push(selectedPlan === "pro" ? "/pricing" : "/dashboard");
   }
 
   return (

@@ -12,7 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly" as const
     })),
     ...getBlogs().map((post) => ({
-      url: post.canonicalUrl || `${baseUrl}/blog/${post.slug}`,
+      url: (post.canonicalUrl || `${baseUrl}/blog/${post.slug}`).replace(/^https?:\/\/localhost:\d+/, baseUrl),
       priority: 0.8,
       changeFrequency: "monthly" as const
     }))

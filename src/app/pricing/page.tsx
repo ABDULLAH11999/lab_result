@@ -1,5 +1,19 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
+import type { Metadata } from "next";
+import { getSettings } from "@/lib/db";
+import { normalizeBaseUrl } from "@/lib/seo";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
+  return {
+    title: "Free Medical Report Overview & Pro Lab Tracking Pricing",
+    description: "Start with free lab report analysis, medical report summaries, and blood test explanations. Upgrade for unlimited reports, history, trends, and PDF export.",
+    alternates: {
+      canonical: `${baseUrl}/pricing`
+    }
+  };
+}
 
 const plans = [
   { name: "Guest", price: "$0", cta: "Start free", href: "/analyze", features: ["3 analyses/day", "Full report explanation", "Doctor question list"] },

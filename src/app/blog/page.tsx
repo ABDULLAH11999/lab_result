@@ -1,6 +1,20 @@
 import Link from "next/link";
-import { getBlogs } from "@/lib/db";
+import { getBlogs, getSettings } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
+import type { Metadata } from "next";
+import { DEFAULT_SITE_KEYWORDS, normalizeBaseUrl } from "@/lib/seo";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
+  return {
+    title: "Lab Report Explanation Guides | Blood Test Results Blog",
+    description: "Patient-friendly guides for CBC, CMP, cholesterol, thyroid, HbA1c, vitamin D, ferritin, liver, kidney, and blood test report questions.",
+    keywords: DEFAULT_SITE_KEYWORDS,
+    alternates: {
+      canonical: `${baseUrl}/blog`
+    }
+  };
+}
 
 export default function BlogIndexPage() {
   const posts = getBlogs();

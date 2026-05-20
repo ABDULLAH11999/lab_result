@@ -59,7 +59,7 @@ const staticXml = routes
 const blogXml = blogs
   .map((blog) => `
   <url>
-    <loc>${escapeXml((blog.canonicalUrl || `${baseUrl}/blog/${blog.slug}`).replace(/\/$/, ""))}</loc>
+    <loc>${escapeXml((blog.canonicalUrl || `${baseUrl}/blog/${blog.slug}`).replace(/^https?:\/\/localhost:\d+/, baseUrl).replace(/\/$/, ""))}</loc>
     <lastmod>${blog.publishedAt || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

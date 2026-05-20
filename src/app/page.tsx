@@ -11,6 +11,9 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import AnalyzePageClient from "@/components/analyze/AnalyzePageClient";
+import { getSettings } from "@/lib/db";
+import { DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE, getSiteKeywords, normalizeBaseUrl } from "@/lib/seo";
+import type { Metadata } from "next";
 
 const features = [
   "Explains every value in plain English",
@@ -38,6 +41,33 @@ const faqs = [
   }
 ];
 
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = getSettings<any>();
+  const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
+  const title = settings?.siteTitle || DEFAULT_SITE_TITLE;
+  const description = settings?.siteDescription || DEFAULT_SITE_DESCRIPTION;
+
+  return {
+    title,
+    description,
+    keywords: getSiteKeywords(settings),
+    alternates: {
+      canonical: baseUrl
+    },
+    openGraph: {
+      title,
+      description,
+      url: baseUrl,
+      images: [{ url: settings?.ogImageUrl || "/og-default.svg" }]
+    },
+    twitter: {
+      title,
+      description,
+      images: [settings?.ogImageUrl || "/og-default.svg"]
+    }
+  };
+}
+
 export default function HomePage() {
   return (
     <div>
@@ -48,10 +78,10 @@ export default function HomePage() {
               Made for real patient reports, including PDFs and paper printouts
             </div>
             <h1 className="font-syne max-w-3xl text-[2.65rem] font-extrabold leading-[0.95] tracking-tight text-slate-950 sm:text-5xl sm:leading-none lg:text-6xl">
-              Understand Your Lab Report Without The Confusion
+              Free Medical Report Analyzer
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:mt-6 sm:text-lg sm:leading-8">
-              Paste the report, upload the PDF, or take a picture of the paper slip. LabExplain turns hard-to-read lab values into simple explanations you can actually follow.
+              Get a lab report summary, medical report overview, and plain-English blood test explanation. Paste the report, upload the PDF, or scan a paper slip with your phone.
             </p>
             <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2">
               <div className="rounded-3xl border border-slate-200 bg-white p-4">
@@ -74,8 +104,8 @@ export default function HomePage() {
 
           <AnalyzePageClient
             embedded
-            title="Start Right Here"
-            description="Choose the easiest option for you: paste the text, upload the lab file, or scan a paper report with your phone camera."
+            title="Scan or Analyze Your Report"
+            description="Choose the easiest free option: paste text, select a lab PDF, or scan a medical report with your camera."
           />
         </div>
       </section>

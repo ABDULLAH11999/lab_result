@@ -478,6 +478,22 @@ export default function AdminPage() {
                   placeholder="Paste your blood test results and get calm, plain-English explanations..."
                 />
               </div>
+              <div className="space-y-3 lg:col-span-2">
+                <label className="block text-sm font-semibold text-slate-900">Target SEO Keywords</label>
+                <textarea
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                  rows={5}
+                  value={Array.isArray(settings?.siteKeywords) ? settings.siteKeywords.join(", ") : settings?.siteKeywords || ""}
+                  onChange={(event) => setSettings({
+                    ...settings,
+                    siteKeywords: event.target.value.split(",").map((item) => item.trim()).filter(Boolean)
+                  })}
+                  placeholder="lab report summary, report analyzer, medical report explanation"
+                />
+                <p className="text-xs text-slate-500">
+                  Comma-separated search phrases used in site metadata and admin-managed SEO defaults.
+                </p>
+              </div>
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-slate-900">Meta OG Image URL</label>
                 <input
@@ -504,10 +520,13 @@ export default function AdminPage() {
                 {settings?.siteTitle || "LabExplain | Understand Your Lab Results in Plain English"}
               </h3>
               <p className="mt-2 text-sm text-emerald-700">
-                {settings?.canonicalUrl || "http://localhost:3000"}
+                {settings?.canonicalUrl || "https://labexplain.online"}
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-700">
                 {settings?.siteDescription || "Paste your blood test results and get calm, plain-English explanations for each lab value, how they fit together, and what to ask your doctor next."}
+              </p>
+              <p className="mt-3 max-w-3xl text-xs leading-6 text-slate-500">
+                Keywords: {Array.isArray(settings?.siteKeywords) ? settings.siteKeywords.slice(0, 12).join(", ") : settings?.siteKeywords || "lab report summary, report analyzer, medical report explanation"}
               </p>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 <div className="rounded-2xl bg-white p-4 text-sm text-slate-600">
