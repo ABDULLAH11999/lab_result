@@ -19,6 +19,7 @@ import {
 } from "@/lib/db";
 import { sendContactNotification } from "@/lib/mail";
 import { getRuntimeSettings, getStripeEnv } from "@/lib/runtime-config";
+import { updateStaticSitemap } from "@/lib/sitemap";
 import { slugify, uid } from "@/lib/utils";
 
 async function requireAdmin() {
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
       ...current,
       ...body.settings
     });
+    updateStaticSitemap();
     return NextResponse.json({ success: true });
   }
 
@@ -142,6 +144,7 @@ export async function POST(request: NextRequest) {
       cover: body.cover || ""
     });
     writeBlogs(blogs);
+    updateStaticSitemap();
     return NextResponse.json({ success: true });
   }
 
@@ -165,12 +168,14 @@ export async function POST(request: NextRequest) {
       canonicalUrl: body.canonicalUrl ?? current.canonicalUrl
     };
     writeBlogs(blogs);
+    updateStaticSitemap();
     return NextResponse.json({ success: true });
   }
 
   if (body.action === "deleteBlog") {
     const blogs = getBlogs();
     writeBlogs(blogs.filter((entry) => entry.id !== body.blogId));
+    updateStaticSitemap();
     return NextResponse.json({ success: true });
   }
 

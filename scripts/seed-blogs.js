@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const appUrl = "https://labexplain.online";
 const output = path.join(process.cwd(), "data", "blogs.json");
 
 const topics = [

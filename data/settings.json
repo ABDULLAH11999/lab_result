@@ -5,7 +5,7 @@
   "siteName": "LabExplain",
   "siteTitle": "LabExplain | Understand Your Lab Results in Plain English",
   "siteDescription": "Paste your blood test results and get calm, plain-English explanations for each lab value, how they fit together, and what to ask your doctor next.",
-  "canonicalUrl": "http://localhost:3000",
+  "canonicalUrl": "https://labexplain.online",
   "faviconUrl": "/favicon.svg",
   "ogImageUrl": "/og-default.svg",
   "stripeMode": "test",

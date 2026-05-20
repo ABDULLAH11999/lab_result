@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:blogs": "node scripts/seed-blogs.js"
+    "seed:blogs": "node scripts/seed-blogs.js",
+    "gen:sitemap": "node scripts/gen-sitemap.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
