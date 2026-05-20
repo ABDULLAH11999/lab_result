@@ -51,40 +51,42 @@ function renderEmailTemplate({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>${escapeHtml(title)}</title>
       </head>
-      <body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
+      <body style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
         <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(preheader)}</div>
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f1f5f9;padding:28px 14px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#eef2f7;padding:32px 14px;">
           <tr>
             <td align="center">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;background:#ffffff;border:1px solid #dde6f0;border-radius:24px;overflow:hidden;box-shadow:0 20px 50px rgba(15,23,42,0.08);">
                 <tr>
-                  <td style="padding:28px 28px 22px;background:#0f172a;">
+                  <td style="padding:26px 30px 22px;background:linear-gradient(135deg,#0f172a 0%,#172554 100%);">
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                       <tr>
                         <td style="vertical-align:middle;">
-                          <div style="display:inline-block;width:38px;height:38px;border-radius:12px;background:#2563eb;color:#ffffff;text-align:center;line-height:38px;font-size:20px;font-weight:700;">L</div>
-                          <span style="display:inline-block;margin-left:10px;color:#ffffff;font-size:20px;font-weight:800;vertical-align:middle;">LabExplain</span>
+                          <div style="color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.02em;">LabExplain</div>
+                          <div style="margin-top:4px;color:#cbd5e1;font-size:12px;line-height:1.5;">Plain-English lab explanations for patients</div>
                         </td>
-                        <td align="right" style="color:#cbd5e1;font-size:12px;">Educational lab report explainer</td>
+                        <td align="right" style="color:#cbd5e1;font-size:12px;font-weight:600;">Educational information only</td>
                       </tr>
                     </table>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:30px 28px 8px;">
-                    ${eyebrow ? `<div style="margin-bottom:12px;color:#2563eb;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;">${escapeHtml(eyebrow)}</div>` : ""}
-                    <h1 style="margin:0;color:#020617;font-size:28px;line-height:1.2;font-weight:800;">${escapeHtml(title)}</h1>
+                  <td style="padding:34px 30px 10px;">
+                    ${eyebrow ? `<div style="margin-bottom:12px;color:#1d4ed8;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">${escapeHtml(eyebrow)}</div>` : ""}
+                    <h1 style="margin:0;color:#020617;font-size:30px;line-height:1.2;font-weight:800;letter-spacing:-0.03em;">${escapeHtml(title)}</h1>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:18px 28px 28px;">
+                  <td style="padding:18px 30px 32px;">
                     ${body}
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:22px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;">
-                    <p style="margin:0 0 10px;color:#64748b;font-size:12px;line-height:1.6;">${escapeHtml(footerNote)}</p>
-                    <p style="margin:0;color:#94a3b8;font-size:12px;line-height:1.6;">Need help? Contact ${escapeHtml(supportEmail)}.</p>
+                  <td style="padding:22px 30px;background:#f8fafc;border-top:1px solid #e2e8f0;">
+                    <div style="padding:14px 16px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;">
+                      <p style="margin:0 0 8px;color:#475569;font-size:12px;line-height:1.7;">${escapeHtml(footerNote)}</p>
+                      <p style="margin:0;color:#94a3b8;font-size:12px;line-height:1.6;">Need help? Contact ${escapeHtml(supportEmail)}.</p>
+                    </div>
                   </td>
                 </tr>
               </table>
