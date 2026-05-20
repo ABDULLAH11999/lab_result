@@ -109,10 +109,10 @@ export default function AIDoctorWidget() {
   return (
     <>
       {open ? (
-        <div className="pointer-events-auto fixed bottom-20 left-4 right-4 z-40 w-auto max-w-[360px] mx-auto sm:bottom-20 sm:left-auto sm:right-20 sm:w-[360px] sm:max-w-none lg:bottom-16 lg:left-6 lg:right-20 lg:w-auto lg:max-w-[760px] lg:ml-auto">
+        <div className="pointer-events-auto fixed bottom-20 left-4 right-4 z-40 mx-auto w-auto max-w-[360px] sm:bottom-20 sm:left-auto sm:right-20 sm:w-[360px] sm:max-w-none lg:bottom-12 lg:left-1/2 lg:right-auto lg:w-[620px] lg:max-w-none lg:-translate-x-1/2">
           <div className="absolute bottom-[-8px] right-7 h-5 w-5 rotate-45 border-b border-r border-white/80 bg-white/90 sm:right-10 lg:bottom-5 lg:right-[-10px] lg:border-b-0 lg:border-r lg:border-t" />
           
-          <div className="relative flex max-h-[calc(100vh_-_120px)] flex-col overflow-hidden rounded-[34px] border border-white/80 bg-white/92 shadow-[0_28px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl sm:max-h-[calc(100vh_-_140px)] lg:max-h-[calc(100vh_-_100px)]">
+          <div className="relative flex h-[420px] flex-col overflow-hidden rounded-[34px] border border-white/80 bg-white/92 shadow-[0_28px_80px_rgba(15,23,42,0.20)] backdrop-blur-2xl sm:h-[480px] lg:h-[500px]">
             <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-cyan-300/20 blur-3xl" />
             <div className="absolute -left-10 bottom-8 h-36 w-36 rounded-full bg-blue-500/15 blur-3xl" />
 
@@ -138,7 +138,7 @@ export default function AIDoctorWidget() {
               </div>
             </div>
 
-            <div ref={scrollerRef} className="relative flex flex-1 min-h-[120px] flex-col gap-3 overflow-y-auto px-4 py-4 max-h-[280px] sm:max-h-[360px] lg:max-h-[460px]">
+            <div ref={scrollerRef} className="relative min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
               {messages.map((message, index) => (
                 <div
                   key={`${message.role}-${index}`}
