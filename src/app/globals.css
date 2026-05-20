@@ -7,7 +7,7 @@
 }
 
 :root {
-  --background: #f6f8fc;
+  --background: #f3f7fb;
   --foreground: #0f172a;
 }
 
@@ -17,7 +17,11 @@
   }
 
   body {
-    @apply bg-[var(--background)] text-[var(--foreground)] antialiased;
+    @apply text-[var(--foreground)] antialiased;
+    background:
+      radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), transparent 28%),
+      radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 26%),
+      linear-gradient(180deg, #f8fbff 0%, #f3f7fb 38%, #eef4fb 100%);
     font-family: var(--font-sans);
   }
 
@@ -30,4 +34,40 @@
   background:
     radial-gradient(circle at top, rgba(59, 130, 246, 0.16), transparent 35%),
     radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.16), transparent 30%);
+}
+
+.glass-panel {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.46));
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(18px);
+}
+
+.glass-card {
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.58));
+  box-shadow:
+    0 18px 44px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+}
+
+.icon-float {
+  animation: icon-float 5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes icon-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
 }
