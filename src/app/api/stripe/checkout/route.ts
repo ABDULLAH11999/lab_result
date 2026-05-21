@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { getStripe, getStripeClientConfig } from "@/lib/stripe";
 import { getRuntimeSettings } from "@/lib/runtime-config";
 import { findUserById, getOrCreateStripeCustomer, syncUserFromSubscription } from "@/lib/stripe-billing";
-import { getSettings } from "@/lib/db";
+import { getPlans, getSettings } from "@/lib/db";
 import { normalizeBaseUrl } from "@/lib/seo";
 
 export async function POST() {
@@ -16,7 +16,7 @@ export async function POST() {
     const runtime = getRuntimeSettings();
     const stripe = getStripe(runtime.stripeMode);
     const config = getStripeClientConfig(runtime.stripeMode);
-    if (!stripe || !config.priceId) {
+    if (!stripe) {
       return NextResponse.json({ error: "Stripe is not configured yet." }, { status: 400 });
     }
 
@@ -32,9 +32,32 @@ export async function POST() {
 
     const customer = await getOrCreateStripeCustomer(stripe, user);
     const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
+    const proPlan = getPlans<any>().find((plan) => plan.id === "pro");
+    const amount = Math.max(50, Math.round(Number(proPlan?.price || 9) * 100));
+    if (!config.priceId && runtime.stripeMode !== "test") {
+      return NextResponse.json({ error: "Live Stripe mode requires a valid Stripe price ID." }, { status: 400 });
+    }
+
     const checkout = await stripe.checkout.sessions.create({
       mode: "subscription",
-      line_items: [{ price: config.priceId, quantity: 1 }],
+      line_items: config.priceId
+        ? [{ price: config.priceId, quantity: 1 }]
+        : runtime.stripeMode === "test"
+          ? [{
+              price_data: {
+                currency: "usd",
+                unit_amount: amount,
+                recurring: {
+                  interval: "month"
+                },
+                product_data: {
+                  name: "LabExplain Pro",
+                  description: "Unlimited analyses, history, trends, and PDF export."
+                }
+              },
+              quantity: 1
+            }]
+          : [],
       customer: customer.id,
       success_url: `${baseUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/pricing?checkout=cancelled`,

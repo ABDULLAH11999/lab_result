@@ -2,6 +2,15 @@ import { getSettings } from "@/lib/db";
 
 export type StripeMode = "test" | "live";
 
+function cleanStripeValue(value?: string) {
+  const normalized = (value || "").trim();
+  if (!normalized) return "";
+  if (/^(price|pk|sk|whsec)_your_/i.test(normalized)) {
+    return "";
+  }
+  return normalized;
+}
+
 export function getRuntimeSettings() {
   const settings = getSettings<any>();
 
@@ -23,24 +32,24 @@ export function getStripeEnv(mode?: StripeMode) {
   if (activeMode === "live") {
     return {
       mode: "live" as const,
-      secretKey: process.env.STRIPE_SECRET_KEY || process.env.STRIPE_TEST_SECRET || "",
+      secretKey: cleanStripeValue(process.env.STRIPE_SECRET_KEY) || cleanStripeValue(process.env.STRIPE_TEST_SECRET) || "",
       publishableKey:
-        process.env.STRIPE_PUBLISHABLE_KEY ||
-        process.env.STRIPE_TEST_KEY ||
+        cleanStripeValue(process.env.STRIPE_PUBLISHABLE_KEY) ||
+        cleanStripeValue(process.env.STRIPE_TEST_KEY) ||
         "",
-      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || process.env.STRIPE_TEST_WEBHOOK_SECRET || "",
-      priceId: process.env.STRIPE_PRO_PRICE_ID || process.env.STRIPE_TEST_PRO_PRICE_ID || ""
+      webhookSecret: cleanStripeValue(process.env.STRIPE_WEBHOOK_SECRET) || cleanStripeValue(process.env.STRIPE_TEST_WEBHOOK_SECRET) || "",
+      priceId: cleanStripeValue(process.env.STRIPE_PRO_PRICE_ID) || cleanStripeValue(process.env.STRIPE_TEST_PRO_PRICE_ID) || ""
     };
   }
 
   return {
     mode: "test" as const,
-    secretKey: process.env.STRIPE_TEST_SECRET || process.env.STRIPE_SECRET_KEY || "",
+    secretKey: cleanStripeValue(process.env.STRIPE_TEST_SECRET) || cleanStripeValue(process.env.STRIPE_SECRET_KEY) || "",
     publishableKey:
-      process.env.STRIPE_TEST_KEY ||
-      process.env.STRIPE_PUBLISHABLE_KEY ||
+      cleanStripeValue(process.env.STRIPE_TEST_KEY) ||
+      cleanStripeValue(process.env.STRIPE_PUBLISHABLE_KEY) ||
       "",
-    webhookSecret: process.env.STRIPE_TEST_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET || "",
-    priceId: process.env.STRIPE_TEST_PRO_PRICE_ID || process.env.STRIPE_PRO_PRICE_ID || ""
+    webhookSecret: cleanStripeValue(process.env.STRIPE_TEST_WEBHOOK_SECRET) || cleanStripeValue(process.env.STRIPE_WEBHOOK_SECRET) || "",
+    priceId: cleanStripeValue(process.env.STRIPE_TEST_PRO_PRICE_ID) || cleanStripeValue(process.env.STRIPE_PRO_PRICE_ID) || ""
   };
 }
