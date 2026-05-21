@@ -4,7 +4,10 @@ import type { BlogPost, SessionUser } from "@/types";
 
 const DATA_DIR = path.join(/* turbopackIgnore: true */ process.cwd(), "data");
 const DEFAULT_RUNTIME_DIR = path.join(/* turbopackIgnore: true */ process.cwd(), "storage");
-const RUNTIME_DIR = process.env.RUNTIME_DATA_DIR || DEFAULT_RUNTIME_DIR;
+const RENDER_DISK_DIR = "/var/data/labexplain";
+const RUNTIME_DIR =
+  process.env.RUNTIME_DATA_DIR ||
+  (fs.existsSync(RENDER_DISK_DIR) ? RENDER_DISK_DIR : DEFAULT_RUNTIME_DIR);
 const USERS_FILE = path.join(RUNTIME_DIR, "users.json");
 const REPORTS_FILE = path.join(RUNTIME_DIR, "reports.json");
 const OTPS_FILE = path.join(RUNTIME_DIR, "otps.json");
