@@ -58,14 +58,24 @@ function renderEmailTemplate({
             <td align="center">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;background:#ffffff;border:1px solid #dde6f0;border-radius:24px;overflow:hidden;box-shadow:0 20px 50px rgba(15,23,42,0.08);">
                 <tr>
-                  <td style="padding:26px 30px 22px;background:linear-gradient(135deg,#0f172a 0%,#172554 100%);">
+                  <td style="padding:0;background:#ffffff;">
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                       <tr>
-                        <td style="vertical-align:middle;">
-                          <div style="color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.02em;">LabExplain</div>
-                          <div style="margin-top:4px;color:#cbd5e1;font-size:12px;line-height:1.5;">Plain-English lab explanations for patients</div>
+                        <td style="padding:18px 18px 0;">
+                          <div style="border-radius:26px 26px 0 0;overflow:hidden;background:linear-gradient(135deg,#0b5cff 0%,#1d4ed8 34%,#2563eb 62%,#38bdf8 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),inset 0 -1px 0 rgba(255,255,255,0.08);">
+                            <div style="background:linear-gradient(180deg,rgba(255,255,255,0.18) 0%,rgba(255,255,255,0.06) 38%,rgba(255,255,255,0.02) 100%);padding:28px 30px 24px;">
+                              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td style="vertical-align:middle;">
+                                    <div style="color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.02em;">LabExplain</div>
+                                    <div style="margin-top:4px;color:rgba(239,246,255,0.92);font-size:12px;line-height:1.5;">Plain-English lab explanations for patients</div>
+                                  </td>
+                                  <td align="right" style="color:rgba(239,246,255,0.92);font-size:12px;font-weight:700;">Educational information only</td>
+                                </tr>
+                              </table>
+                            </div>
+                          </div>
                         </td>
-                        <td align="right" style="color:#cbd5e1;font-size:12px;font-weight:600;">Educational information only</td>
                       </tr>
                     </table>
                   </td>

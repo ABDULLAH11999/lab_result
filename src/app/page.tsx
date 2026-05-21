@@ -12,7 +12,8 @@ import {
 import { Card } from "@/components/ui/card";
 import AnalyzePageClient from "@/components/analyze/AnalyzePageClient";
 import AIDoctorWidget from "@/components/home/AIDoctorWidget";
-import { getSettings } from "@/lib/db";
+import Link from "next/link";
+import { getBlogs, getSettings } from "@/lib/db";
 import { DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE, getSiteKeywords, normalizeBaseUrl, resolveMetadataImageUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 
@@ -76,6 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function HomePage() {
+  const posts = getBlogs().slice(0, 6);
   const siteUrl = "https://labexplain.online";
   const appSchema = {
     "@context": "https://schema.org",
@@ -287,6 +289,28 @@ export default function HomePage() {
               </div>
             </details>
           ))}
+        </div>
+      </section>
+
+      <section className="border-y border-slate-200 bg-slate-50 py-14 sm:py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mb-8 flex items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <h2 className="font-syne text-2xl font-bold text-slate-950 sm:text-3xl">Popular LabExplain guides</h2>
+              <p className="mt-3 text-slate-600">Fresh internal links from the homepage help search engines discover and revisit your newest blog articles.</p>
+            </div>
+            <Link href="/blog" className="text-sm font-semibold text-blue-700">See all posts</Link>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
+              <article key={post.id} className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">{post.publishedAt}</p>
+                <h3 className="mt-3 font-syne text-2xl font-bold text-slate-950">{post.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{post.excerpt}</p>
+                <Link href={`/blog/${post.slug}`} className="mt-5 inline-flex text-sm font-semibold text-blue-700">Read article</Link>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
       <AIDoctorWidget />

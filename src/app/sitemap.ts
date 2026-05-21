@@ -9,12 +9,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...routes.map((route, index) => ({
       url: `${baseUrl}${route}`,
       priority: index === 0 ? 1 : 0.7,
-      changeFrequency: "weekly" as const
+      changeFrequency: "weekly" as const,
+      lastModified: new Date()
     })),
     ...getBlogs().map((post) => ({
       url: (post.canonicalUrl || `${baseUrl}/blog/${post.slug}`).replace(/^https?:\/\/localhost:\d+/, baseUrl),
       priority: 0.8,
-      changeFrequency: "monthly" as const
+      changeFrequency: "weekly" as const,
+      lastModified: post.publishedAt
     }))
   ];
 }

@@ -2,25 +2,55 @@ import Link from "next/link";
 import { getBlogs, getSettings } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
-import { DEFAULT_SITE_KEYWORDS, normalizeBaseUrl } from "@/lib/seo";
+import { DEFAULT_SITE_KEYWORDS, normalizeBaseUrl, resolveMetadataImageUrl } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
+  const settings = getSettings<any>();
+  const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
+  const ogImage = resolveMetadataImageUrl(baseUrl, settings?.ogImageUrl);
   return {
     title: "Lab Report Explanation Guides | Blood Test Results Blog",
     description: "Patient-friendly guides for CBC, CMP, cholesterol, thyroid, HbA1c, vitamin D, ferritin, liver, kidney, and blood test report questions.",
     keywords: DEFAULT_SITE_KEYWORDS,
     alternates: {
       canonical: `${baseUrl}/blog`
+    },
+    openGraph: {
+      title: "Lab Report Explanation Guides | Blood Test Results Blog",
+      description: "Patient-friendly guides for CBC, CMP, cholesterol, thyroid, HbA1c, vitamin D, ferritin, liver, kidney, and blood test report questions.",
+      type: "website",
+      url: `${baseUrl}/blog`,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: "LabExplain blog" }]
+    },
+    twitter: {
+      title: "Lab Report Explanation Guides | Blood Test Results Blog",
+      description: "Patient-friendly guides for CBC, CMP, cholesterol, thyroid, HbA1c, vitamin D, ferritin, liver, kidney, and blood test report questions.",
+      images: [ogImage]
     }
   };
 }
 
 export default function BlogIndexPage() {
   const posts = getBlogs();
+  const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "LabExplain Blog",
+    url: `${baseUrl}/blog`,
+    description: "Patient-friendly guides for CBC, CMP, cholesterol, thyroid, HbA1c, vitamin D, ferritin, liver, kidney, and blood test report questions.",
+    blogPost: posts.slice(0, 24).map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.seoTitle || post.title,
+      url: post.canonicalUrl || `${baseUrl}/blog/${post.slug}`,
+      datePublished: post.publishedAt,
+      keywords: post.keywords?.join(", ")
+    }))
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-16">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <div className="mb-10">
         <h1 className="font-syne text-4xl font-bold text-slate-950">LabExplain Blog</h1>
         <p className="mt-3 text-slate-600">Educational guides built around the real lab questions patients search for.</p>
