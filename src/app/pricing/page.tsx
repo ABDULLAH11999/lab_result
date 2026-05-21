@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
+import { getSession } from "@/lib/auth";
 import { getSettings } from "@/lib/db";
 import { normalizeBaseUrl } from "@/lib/seo";
+import UpgradeButton from "@/components/billing/UpgradeButton";
 
 export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
@@ -21,7 +23,9 @@ const plans = [
   { name: "Pro", price: "$9/mo", cta: "Go Pro", href: "/auth/signup?plan=pro", features: ["Unlimited analyses", "Full history", "Trend comparison", "PDF export"] }
 ];
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const session = await getSession();
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
       <div className="mx-auto mb-12 max-w-2xl text-center">
@@ -41,9 +45,18 @@ export default function PricingPage() {
                 </div>
               ))}
             </div>
-            <Link href={plan.href} className="mt-8 inline-flex w-full justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white">
-              {plan.cta}
-            </Link>
+            {plan.name === "Pro" ? (
+              <UpgradeButton
+                authenticated={Boolean(session)}
+                className="mt-8 inline-flex w-full justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"
+              >
+                {plan.cta}
+              </UpgradeButton>
+            ) : (
+              <Link href={plan.href} className="mt-8 inline-flex w-full justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white">
+                {plan.cta}
+              </Link>
+            )}
           </div>
         ))}
       </div>

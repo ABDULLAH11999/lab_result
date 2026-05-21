@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getStripe, getStripeClientConfig } from "@/lib/stripe";
 import { getRuntimeSettings } from "@/lib/runtime-config";
+import { findUserById, getOrCreateStripeCustomer, syncUserFromSubscription } from "@/lib/stripe-billing";
+import { getSettings } from "@/lib/db";
+import { normalizeBaseUrl } from "@/lib/seo";
 
 export async function POST() {
   const session = await getSession();
@@ -16,13 +19,28 @@ export async function POST() {
     return NextResponse.json({ error: "Stripe is not configured yet." }, { status: 400 });
   }
 
+  const user = findUserById(session.id);
+  if (!user) {
+    return NextResponse.json({ error: "User not found." }, { status: 404 });
+  }
+
+  const synced = await syncUserFromSubscription(stripe, user.id);
+  if (synced?.subscription && ["active", "trialing", "past_due", "unpaid"].includes(synced.subscription.status)) {
+    return NextResponse.json({ url: `${normalizeBaseUrl(getSettings<any>()?.canonicalUrl)}/dashboard?billing=already-active` });
+  }
+
+  const customer = await getOrCreateStripeCustomer(stripe, user);
+  const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
   const checkout = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price: config.priceId, quantity: 1 }],
-    customer_email: session.email,
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?upgraded=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
-    metadata: { userId: session.id, stripeMode: runtime.stripeMode }
+    customer: customer.id,
+    success_url: `${baseUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${baseUrl}/pricing?checkout=cancelled`,
+    metadata: { userId: session.id, stripeMode: runtime.stripeMode },
+    subscription_data: {
+      metadata: { userId: session.id, stripeMode: runtime.stripeMode }
+    }
   });
 
   return NextResponse.json({ url: checkout.url });

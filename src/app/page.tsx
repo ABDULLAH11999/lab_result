@@ -13,7 +13,7 @@ import { Card } from "@/components/ui/card";
 import AnalyzePageClient from "@/components/analyze/AnalyzePageClient";
 import AIDoctorWidget from "@/components/home/AIDoctorWidget";
 import { getSettings } from "@/lib/db";
-import { DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE, getSiteKeywords, normalizeBaseUrl } from "@/lib/seo";
+import { DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE, getSiteKeywords, normalizeBaseUrl, resolveMetadataImageUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 
 const features = [
@@ -51,7 +51,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     settings?.siteDescription ||
     "Upload a PDF, scan a paper report, or paste your lab results to get a free lab report summary, medical report explanation, blood test overview, and clear doctor questions in plain English.";
-  const ogImage = settings?.ogImageUrl || "/og-default.svg";
+  const ogImage = resolveMetadataImageUrl(baseUrl, settings?.ogImageUrl);
 
   return {
     title,
@@ -65,7 +65,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       type: "website",
       url: baseUrl,
-      images: [{ url: ogImage }]
+      images: [{ url: ogImage, width: 1200, height: 630, alt: "LabExplain preview" }]
     },
     twitter: {
       title,

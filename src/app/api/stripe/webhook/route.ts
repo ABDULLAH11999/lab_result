@@ -3,6 +3,7 @@ import { getStripe } from "@/lib/stripe";
 import { getPayments, getUsers, writePayments, writeUsers } from "@/lib/db";
 import { getRuntimeSettings } from "@/lib/runtime-config";
 import { sendPurchaseConfirmationUser, sendPurchaseNotificationAdmin } from "@/lib/mail";
+import { syncUserFromCheckoutSession, syncUserFromSubscription } from "@/lib/stripe-billing";
 
 export async function POST(request: NextRequest) {
   const runtime = getRuntimeSettings();
@@ -29,15 +30,9 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as any;
-    const users = getUsers<any>();
-    const user = users.find((entry) => entry.id === session.metadata?.userId);
+    const synced = await syncUserFromCheckoutSession(stripe, session.id);
+    const user = synced?.user;
     if (user) {
-      user.plan = "pro";
-      user.analysesLimit = 999999;
-      user.stripeSubscriptionId = session.subscription;
-      user.stripeCustomerId = session.customer;
-      writeUsers(users);
-
       // Trigger purchase success emails
       try {
         await sendPurchaseConfirmationUser(user.email, "Pro");
@@ -48,14 +43,12 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  if (event.type === "customer.subscription.deleted") {
+  if (event.type === "customer.subscription.created" || event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
     const subscription = event.data.object as any;
     const users = getUsers<any>();
-    const user = users.find((entry) => entry.stripeSubscriptionId === subscription.id);
+    const user = users.find((entry) => entry.stripeSubscriptionId === subscription.id || entry.stripeCustomerId === subscription.customer);
     if (user) {
-      user.plan = "free";
-      user.analysesLimit = 10;
-      writeUsers(users);
+      await syncUserFromSubscription(stripe, user.id);
     }
   }
 

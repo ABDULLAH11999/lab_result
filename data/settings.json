@@ -63,7 +63,7 @@
   ],
   "canonicalUrl": "https://labexplain.online",
   "faviconUrl": "/favicon.svg",
-  "ogImageUrl": "/og-default.svg",
+  "ogImageUrl": "/opengraph-image",
   "stripeMode": "test",
   "stripeConfigured": true,
   "aiConfigured": true,

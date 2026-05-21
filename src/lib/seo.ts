@@ -63,6 +63,21 @@ export function normalizeBaseUrl(value?: string) {
   return (value || process.env.NEXT_PUBLIC_APP_URL || "https://labexplain.online").replace(/\/$/, "");
 }
 
+export function resolveMetadataImageUrl(baseUrl: string, value?: string, fallbackPath = "/opengraph-image") {
+  const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
+  const input = (value || "").trim();
+
+  if (!input || /\.svg($|\?)/i.test(input)) {
+    return `${normalizedBaseUrl}${fallbackPath}`;
+  }
+
+  if (/^https?:\/\//i.test(input)) {
+    return input.replace(/^https?:\/\/localhost:\d+/i, normalizedBaseUrl);
+  }
+
+  return `${normalizedBaseUrl}${input.startsWith("/") ? input : `/${input}`}`;
+}
+
 export function getSiteKeywords(settings?: { siteKeywords?: string[] | string }) {
   if (Array.isArray(settings?.siteKeywords)) {
     return settings.siteKeywords.filter(Boolean);

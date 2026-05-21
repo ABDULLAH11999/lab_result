@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import MedicalDisclaimer from "@/components/layout/MedicalDisclaimer";
 import TrackPageView from "@/components/TrackPageView";
 import { getSettings } from "@/lib/db";
-import { DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE, getSiteKeywords, normalizeBaseUrl } from "@/lib/seo";
+import { DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE, getSiteKeywords, normalizeBaseUrl, resolveMetadataImageUrl } from "@/lib/seo";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = settings?.siteName || "LabExplain";
   const siteDescription = settings?.siteDescription || DEFAULT_SITE_DESCRIPTION;
   const faviconUrl = settings?.faviconUrl || "/favicon.svg";
-  const ogImageUrl = settings?.ogImageUrl || "/og-default.svg";
+  const ogImageUrl = resolveMetadataImageUrl(baseUrl, settings?.ogImageUrl);
   const keywords = getSiteKeywords(settings);
 
   return {
@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: siteDescription,
       siteName,
       locale: "en_US",
-      images: [{ url: ogImageUrl }]
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: `${siteName} preview` }]
     },
     twitter: {
       card: "summary_large_image",

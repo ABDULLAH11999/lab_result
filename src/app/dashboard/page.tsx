@@ -3,6 +3,8 @@ import { ArrowRight, BarChart3, Clock3, FileSearch, FlaskConical, Sparkles } fro
 import { getSession } from "@/lib/auth";
 import { getReports } from "@/lib/db";
 import { Card } from "@/components/ui/card";
+import UpgradeButton from "@/components/billing/UpgradeButton";
+import DashboardBillingCard from "@/components/billing/DashboardBillingCard";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -41,10 +43,19 @@ export default async function DashboardPage() {
               <FlaskConical className="size-4" />
               Analyze new report
             </Link>
-            <Link href="/pricing" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/70 bg-white/70 px-5 py-3 text-sm font-semibold text-slate-700 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur hover:text-slate-950">
-              <BarChart3 className="size-4" />
-              {session.plan === "pro" ? "View plan" : "Upgrade"}
-            </Link>
+            {session.plan === "pro" ? (
+              <Link href="#billing" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/70 bg-white/70 px-5 py-3 text-sm font-semibold text-slate-700 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur hover:text-slate-950">
+                <BarChart3 className="size-4" />
+                View billing
+              </Link>
+            ) : (
+              <UpgradeButton authenticated className="inline-flex items-center justify-center gap-2 rounded-full border border-white/70 bg-white/70 px-5 py-3 text-sm font-semibold text-slate-700 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur hover:text-slate-950">
+                <>
+                  <BarChart3 className="size-4" />
+                  Upgrade
+                </>
+              </UpgradeButton>
+            )}
           </div>
         </div>
       </section>
@@ -76,6 +87,10 @@ export default async function DashboardPage() {
           <p className="font-syne text-xl font-bold text-slate-950">{session.plan === "pro" ? "Enabled" : "Locked"}</p>
           <p className="mt-2 text-sm text-slate-600">{session.plan === "pro" ? "We will keep lab value history ready for long-term comparison." : "Upgrade to Pro for long-term charts and full report history."}</p>
         </Card>
+      </div>
+
+      <div className="mt-8">
+        <DashboardBillingCard />
       </div>
 
       <div className="mt-8 space-y-4">

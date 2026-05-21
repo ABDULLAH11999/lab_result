@@ -1,16 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const [step, setStep] = useState<"form" | "otp">("form");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [otpHint, setOtpHint] = useState("");
-  const [selectedPlan, setSelectedPlan] = useState<"free" | "pro">("free");
+  const searchParams = useSearchParams();
+  const planFromUrl = searchParams.get("plan") === "pro" ? "pro" : "free";
+  const [selectedPlan, setSelectedPlan] = useState<"free" | "pro">(planFromUrl);
   const [form, setForm] = useState({ fullName: "", email: "", password: "", otp: "" });
   const router = useRouter();
+
+  async function redirectToCheckout() {
+    const res = await fetch("/api/stripe/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
+    const data = await res.json();
+    if (!res.ok || !data.url) {
+      throw new Error(data.error || "Stripe checkout could not be started.");
+    }
+
+    window.location.href = data.url;
+  }
 
   async function startSignup(event: React.FormEvent) {
     event.preventDefault();
@@ -33,7 +49,11 @@ export default function SignupPage() {
 
       if (data.directLogin) {
         window.dispatchEvent(new Event("auth-change"));
-        router.push(selectedPlan === "pro" ? "/pricing" : "/dashboard");
+        if (selectedPlan === "pro") {
+          await redirectToCheckout();
+        } else {
+          router.push("/dashboard");
+        }
         return;
       }
 
@@ -66,9 +86,14 @@ export default function SignupPage() {
       }
 
       window.dispatchEvent(new Event("auth-change"));
-      router.push(selectedPlan === "pro" ? "/pricing" : "/dashboard");
+      if (selectedPlan === "pro") {
+        await redirectToCheckout();
+      } else {
+        router.push("/dashboard");
+      }
     } catch {
       setError("Verification could not connect. Please try again.");
+      toast.error("Stripe checkout could not be started.");
     } finally {
       setLoading(false);
     }
