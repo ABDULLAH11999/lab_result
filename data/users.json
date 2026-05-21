@@ -1,16 +1,16 @@
 [
-  {
+   {
     "id": "admin_seed",
-    "email": "labtest7940@gmail.com",
+    "email": "labexplain7940@gmail.com",
     "fullName": "LabExplain Admin",
-    "password": "e7e3dd77b26c66815d981f6da008a8f4bf8afa02c3973e614c0b2f1c1deb93ea",
+    "password": "e59f92776b5f269572035b34c16b47c819d9f38520134da0cf2edaa83d48839d",
     "role": "superadmin",
     "plan": "pro",
     "is_active": true,
     "analysesToday": 0,
     "analysesLimit": 999999,
-    "createdAt": "2026-05-20T00:00:00.000Z",
-    "verifiedAt": "2026-05-20T00:00:00.000Z"
+    "createdAt": "2026-05-20T20:31:04.466Z",
+    "verifiedAt": "2026-05-20T20:31:04.466Z"
   },
   {
     "id": "user_4ee4crtdmpe14m0q",

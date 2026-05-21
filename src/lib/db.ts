@@ -55,9 +55,9 @@ function ensureDataDir() {
   if (!users.some((user) => user.role === "superadmin")) {
     users.unshift({
       id: "admin_seed",
-      email: "labtest7940@gmail.com",
+      email: "labexplain7940@gmail.com",
       fullName: "LabExplain Admin",
-      password: "017af6ec72bb8e14e018e49878064f662d3e6fb53db8e13e20f4f9f7f7f417d2",
+      password: "e59f92776b5f269572035b34c16b47c819d9f38520134da0cf2edaa83d48839d",
       role: "superadmin",
       plan: "pro",
       is_active: true,
