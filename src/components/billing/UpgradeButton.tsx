@@ -21,10 +21,17 @@ export default function UpgradeButton({ authenticated, className, children }: Up
         method: "POST",
         headers: { "Content-Type": "application/json" }
       });
-      const data = await response.json();
+      const raw = await response.text();
+      let data: { url?: string; error?: string } = {};
+
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch {
+        data = {};
+      }
 
       if (!response.ok || !data.url) {
-        throw new Error(data.error || "Stripe checkout could not be started.");
+        throw new Error(data.error || "Stripe checkout could not be started. Please check Stripe settings and try again.");
       }
 
       window.location.href = data.url;
