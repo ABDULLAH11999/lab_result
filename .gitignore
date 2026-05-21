@@ -5,6 +5,7 @@ dist
 coverage
 *.log
 .env.example
+storage/
 data/users.json
 data/reports.json
 data/otps.json
