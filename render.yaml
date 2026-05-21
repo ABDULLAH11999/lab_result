@@ -2,11 +2,17 @@ services:
   - type: web
     name: labexplain
     runtime: node
+    disk:
+      name: labexplain-runtime
+      mountPath: /var/data/labexplain
+      sizeGB: 1
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: RUNTIME_DATA_DIR
+        value: /var/data/labexplain
       - key: NEXT_PUBLIC_APP_URL
         sync: false
       - key: GROQ_API_KEY
