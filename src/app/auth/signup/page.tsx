@@ -32,6 +32,7 @@ export default function SignupPage() {
       }
 
       if (data.directLogin) {
+        window.dispatchEvent(new Event("auth-change"));
         router.push(selectedPlan === "pro" ? "/pricing" : "/dashboard");
         return;
       }
@@ -64,6 +65,7 @@ export default function SignupPage() {
         return;
       }
 
+      window.dispatchEvent(new Event("auth-change"));
       router.push(selectedPlan === "pro" ? "/pricing" : "/dashboard");
     } catch {
       setError("Verification could not connect. Please try again.");

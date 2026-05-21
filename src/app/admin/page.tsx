@@ -69,6 +69,7 @@ export default function AdminPage() {
       return;
     }
     await load();
+    window.dispatchEvent(new Event("auth-change"));
   }
 
   async function saveSettings() {
@@ -118,6 +119,7 @@ export default function AdminPage() {
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
+    window.dispatchEvent(new Event("auth-change"));
     window.location.href = "/";
   }
 

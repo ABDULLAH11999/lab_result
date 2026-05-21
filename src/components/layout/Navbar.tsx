@@ -19,27 +19,35 @@ export default function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
+    async function syncUser() {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store", credentials: "include" });
+        const data = await res.json();
+        setUser(data.user || null);
+      } catch {
+        setUser(null);
+      }
+    }
+
     let active = true;
-    fetch("/api/auth/me", { cache: "no-store", credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (active) {
-          setUser(data.user || null);
-        }
-      })
-      .catch(() => {
-        if (active) {
-          setUser(null);
-        }
-      });
+    void syncUser();
+
+    function handleAuthChange() {
+      if (!active) return;
+      void syncUser();
+    }
+
+    window.addEventListener("auth-change", handleAuthChange);
 
     return () => {
       active = false;
+      window.removeEventListener("auth-change", handleAuthChange);
     };
   }, [pathname]);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
+    window.dispatchEvent(new Event("auth-change"));
     setUser(null);
     window.location.href = "/";
   }

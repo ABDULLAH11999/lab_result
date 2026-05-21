@@ -29,6 +29,7 @@ export default function LoginPage() {
       return;
     }
 
+    window.dispatchEvent(new Event("auth-change"));
     router.push(data.user?.role === "superadmin" ? "/admin" : "/dashboard");
   }
 
