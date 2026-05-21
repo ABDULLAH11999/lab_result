@@ -1,0 +1,26 @@
+[
+  {
+    "identifier": "admin_seed",
+    "tier": "pro",
+    "type": "doctor_chat",
+    "createdAt": "2026-05-20T21:03:31.603Z"
+  },
+  {
+    "identifier": "admin_seed",
+    "tier": "pro",
+    "type": "doctor_chat",
+    "createdAt": "2026-05-20T21:03:57.106Z"
+  },
+  {
+    "identifier": "admin_seed",
+    "tier": "pro",
+    "type": "doctor_chat",
+    "createdAt": "2026-05-20T21:10:30.940Z"
+  },
+  {
+    "identifier": "admin_seed",
+    "tier": "pro",
+    "type": "doctor_chat",
+    "createdAt": "2026-05-20T21:16:51.396Z"
+  }
+]
