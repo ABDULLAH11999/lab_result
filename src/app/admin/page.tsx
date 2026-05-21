@@ -397,6 +397,7 @@ export default function AdminPage() {
                     <th className="px-6 py-4 font-semibold">Path</th>
                     <th className="px-6 py-4 font-semibold">Visitor ID</th>
                     <th className="px-6 py-4 font-semibold">IP</th>
+                    <th className="px-6 py-4 font-semibold">Country</th>
                     <th className="px-6 py-4 font-semibold">Session Type</th>
                     <th className="px-6 py-4 font-semibold">Tracked At</th>
                   </tr>
@@ -408,6 +409,7 @@ export default function AdminPage() {
                         <td className="px-6 py-4 font-medium text-slate-950">{entry.path}</td>
                         <td className="px-6 py-4 font-mono text-xs text-slate-600">{entry.visitor_id}</td>
                         <td className="px-6 py-4 text-slate-600">{entry.ip}</td>
+                        <td className="px-6 py-4 text-slate-600">{entry.country || "Unknown"}</td>
                         <td className="px-6 py-4">
                           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
                             entry.revisited ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-700"
@@ -420,7 +422,7 @@ export default function AdminPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                      <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
                         No track data found for this filter.
                       </td>
                     </tr>
