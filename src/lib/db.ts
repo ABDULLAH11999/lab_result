@@ -40,7 +40,8 @@ const FILES: Record<TableName, string> = {
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 
 const DATABASE_URL = process.env.DATABASE_URL?.trim() || "";
-const pool = DATABASE_URL
+const USE_DATABASE = Boolean(DATABASE_URL) && process.env.NEXT_PHASE !== "phase-production-build";
+const pool = USE_DATABASE
   ? new Pool({
       connectionString: DATABASE_URL
     })
