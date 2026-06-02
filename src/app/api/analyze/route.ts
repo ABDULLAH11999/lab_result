@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     if (session) {
       reportId = uid("report");
-      const reports = getReports<any>();
+      const reports = await getReports<any>();
       reports.push({
         id: reportId,
         userId: session.id,
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         reportDate: result.reportDate || null,
         createdAt: new Date().toISOString()
       });
-      writeReports(reports);
+      await writeReports(reports);
       result.reportId = reportId;
     }
 

@@ -17,7 +17,7 @@ export async function getSession(): Promise<SessionUser | null> {
 
   try {
     const payload = JSON.parse(Buffer.from(session, "base64").toString("utf8"));
-    const users = getUsers<any>();
+    const users = await getUsers<any>();
     const user = users.find((entry) => entry.id === payload.id && entry.email === payload.email);
     if (!user || user.is_active === false) return null;
     return getPublicUser(user);
@@ -43,8 +43,8 @@ export async function clearSession() {
   cookieStore.delete(COOKIE_NAME);
 }
 
-export function createUser(input: { email: string; fullName?: string; password: string }) {
-  const users = getUsers<any>();
+export async function createUser(input: { email: string; fullName?: string; password: string }) {
+  const users = await getUsers<any>();
   const existing = users.find((user) => user.email.toLowerCase() === input.email.toLowerCase());
   if (existing) {
     throw new Error("An account with this email already exists.");
@@ -64,6 +64,6 @@ export function createUser(input: { email: string; fullName?: string; password: 
   };
 
   users.push(user);
-  writeUsers(users);
+  await writeUsers(users);
   return user;
 }

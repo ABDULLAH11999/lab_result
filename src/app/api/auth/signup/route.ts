@@ -10,16 +10,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Please provide a valid email and an 8+ character password." }, { status: 400 });
   }
 
-  const settings = getSettings();
+  const settings = await getSettings();
   const enableOtp = settings.enableOtp !== false; // default to true if not explicitly set to false
-  const existingUser = getUsers<any>().find((user) => user.email.toLowerCase() === email.toLowerCase());
+  const existingUser = (await getUsers<any>()).find((user) => user.email.toLowerCase() === email.toLowerCase());
   if (existingUser) {
     return NextResponse.json({ error: "An account with this email already exists. Please log in instead." }, { status: 409 });
   }
 
   if (!enableOtp) {
     try {
-      const user = createUser({
+      const user = await createUser({
         email: email.toLowerCase(),
         fullName: fullName?.trim(),
         password
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   }
 
   const code = `${Math.floor(100000 + Math.random() * 900000)}`;
-  const otps = getOtps<any>().filter((entry) => entry.email !== email.toLowerCase());
+  const otps = (await getOtps<any>()).filter((entry) => entry.email !== email.toLowerCase());
   otps.push({
     id: uid("otp"),
     email: email.toLowerCase(),
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     createdAt: new Date().toISOString(),
     expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
   });
-  writeOtps(otps);
+  await writeOtps(otps);
 
   try {
     const delivery = await sendOtpEmail(email.toLowerCase(), code);

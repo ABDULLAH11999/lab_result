@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
   }
 
   const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-  const payments = getPayments<any>();
+  const payments = await getPayments<any>();
   payments.push({ id: event.id, type: event.type, createdAt: new Date().toISOString() });
-  writePayments(payments);
+  await writePayments(payments);
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as any;
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "customer.subscription.created" || event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
     const subscription = event.data.object as any;
-    const users = getUsers<any>();
+    const users = await getUsers<any>();
     const user = users.find((entry) => entry.stripeSubscriptionId === subscription.id || entry.stripeCustomerId === subscription.customer);
     if (user) {
       await syncUserFromSubscription(stripe, user.id);

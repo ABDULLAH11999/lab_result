@@ -10,7 +10,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ report
   }
 
   const { reportId } = await params;
-  const report = getReports<any>().find((entry) => entry.id === reportId && entry.userId === session.id);
+  const report = (await getReports<any>()).find((entry) => entry.id === reportId && entry.userId === session.id);
   if (!report) {
     return NextResponse.json({ error: "Report not found" }, { status: 404 });
   }
@@ -39,7 +39,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ rep
   }
 
   const { reportId } = await params;
-  const reports = getReports<any>();
-  writeReports(reports.filter((report) => !(report.id === reportId && report.userId === session.id)));
+  const reports = await getReports<any>();
+  await writeReports(reports.filter((report) => !(report.id === reportId && report.userId === session.id)));
   return NextResponse.json({ success: true });
 }

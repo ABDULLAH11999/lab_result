@@ -11,9 +11,9 @@ function escapeXml(value: string) {
 }
 
 export async function GET() {
-  const settings = getSettings<any>();
+  const settings = await getSettings<any>();
   const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
-  const posts = getBlogs().sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+  const posts = (await getBlogs()).sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
   const items = posts.slice(0, 100).map((post) => {
     const url = (post.canonicalUrl || `${baseUrl}/blog/${post.slug}`).replace(/^https?:\/\/localhost:\d+/, baseUrl);

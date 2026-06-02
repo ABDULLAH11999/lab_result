@@ -44,7 +44,7 @@ const faqs = [
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = getSettings<any>();
+  const settings = await getSettings<any>();
   const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
   const title =
     settings?.siteTitle ||
@@ -76,8 +76,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function HomePage() {
-  const posts = getBlogs().slice(0, 6);
+export default async function HomePage() {
+  const posts = (await getBlogs()).slice(0, 6);
   const siteUrl = "https://labexplain.online";
   const appSchema = {
     "@context": "https://schema.org",

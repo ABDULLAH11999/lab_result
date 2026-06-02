@@ -20,19 +20,19 @@ export async function POST() {
       return NextResponse.json({ error: "Stripe is not configured yet." }, { status: 400 });
     }
 
-    const user = findUserById(session.id);
+    const user = await findUserById(session.id);
     if (!user) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
     const synced = await syncUserFromSubscription(stripe, user.id);
     if (synced?.subscription && ["active", "trialing", "past_due", "unpaid"].includes(synced.subscription.status)) {
-      return NextResponse.json({ url: `${normalizeBaseUrl(getSettings<any>()?.canonicalUrl)}/dashboard?billing=already-active` });
+      return NextResponse.json({ url: `${normalizeBaseUrl((await getSettings<any>())?.canonicalUrl)}/dashboard?billing=already-active` });
     }
 
     const customer = await getOrCreateStripeCustomer(stripe, user);
-    const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
-    const proPlan = getPlans<any>().find((plan) => plan.id === "pro");
+    const baseUrl = normalizeBaseUrl((await getSettings<any>())?.canonicalUrl);
+    const proPlan = (await getPlans<any>()).find((plan) => plan.id === "pro");
     const amount = Math.max(50, Math.round(Number(proPlan?.price || 9) * 100));
     if (!config.priceId && runtime.stripeMode !== "test") {
       return NextResponse.json({ error: "Live Stripe mode requires a valid Stripe price ID." }, { status: 400 });

@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { DEFAULT_SITE_KEYWORDS, normalizeBaseUrl, resolveMetadataImageUrl } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = getSettings<any>();
+  const settings = await getSettings<any>();
   const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
   const ogImage = resolveMetadataImageUrl(baseUrl, settings?.ogImageUrl);
   return {
@@ -30,9 +30,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function BlogIndexPage() {
-  const posts = getBlogs();
-  const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
+export default async function BlogIndexPage() {
+  const posts = await getBlogs();
+  const baseUrl = normalizeBaseUrl((await getSettings<any>())?.canonicalUrl);
   const schema = {
     "@context": "https://schema.org",
     "@type": "Blog",

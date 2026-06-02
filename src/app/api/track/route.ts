@@ -24,7 +24,7 @@ function getCountryFromRequest(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const { path, visitorId, revisited } = await request.json();
-  const visits = getVisits<any>();
+  const visits = await getVisits<any>();
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const country = getCountryFromRequest(request);
 
@@ -38,6 +38,6 @@ export async function POST(request: NextRequest) {
     created_at: new Date().toISOString()
   });
 
-  writeVisits(visits.slice(-5000));
+  await writeVisits(visits.slice(-5000));
   return NextResponse.json({ success: true });
 }

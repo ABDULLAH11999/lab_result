@@ -9,9 +9,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
-  const contacts = getContacts<any>();
+  const contacts = await getContacts<any>();
   contacts.push({ id: uid("contact"), ...payload, createdAt: new Date().toISOString() });
-  writeContacts(contacts);
+  await writeContacts(contacts);
   await sendContactNotification(payload);
 
   return NextResponse.json({ success: true });

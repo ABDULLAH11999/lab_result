@@ -11,10 +11,10 @@ function escapeXml(value: string) {
     .replace(/'/g, "&apos;");
 }
 
-export function buildSitemapXml() {
-  const settings = getSettings<any>();
+export async function buildSitemapXml() {
+  const settings = await getSettings<any>();
   const baseUrl = (settings?.canonicalUrl || process.env.NEXT_PUBLIC_APP_URL || "https://labexplain.online").replace(/\/$/, "");
-  const blogs = getBlogs();
+  const blogs = await getBlogs();
   const today = new Date().toISOString().split("T")[0];
 
   const staticRoutes = [
@@ -65,8 +65,8 @@ export function buildSitemapXml() {
 `;
 }
 
-export function updateStaticSitemap() {
-  const xml = buildSitemapXml();
+export async function updateStaticSitemap() {
+  const xml = await buildSitemapXml();
   const publicPath = path.join(process.cwd(), "public", "sitemap.xml");
   const rootPath = path.join(process.cwd(), "sitemap.xml");
 

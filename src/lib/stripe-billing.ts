@@ -33,20 +33,20 @@ function toIsoDate(value?: number | null) {
   return new Date(value * 1000).toISOString();
 }
 
-function updateStoredUser(userId: string, updater: (user: any) => void) {
-  const users = getUsers<any>();
+async function updateStoredUser(userId: string, updater: (user: any) => void) {
+  const users = await getUsers<any>();
   const user = users.find((entry) => entry.id === userId);
   if (!user) {
     return null;
   }
 
   updater(user);
-  writeUsers(users);
+  await writeUsers(users);
   return user;
 }
 
-export function findUserById(userId: string) {
-  return getUsers<any>().find((entry) => entry.id === userId) || null;
+export async function findUserById(userId: string) {
+  return (await getUsers<any>()).find((entry) => entry.id === userId) || null;
 }
 
 export async function getOrCreateStripeCustomer(stripe: Stripe, user: any) {
@@ -67,7 +67,7 @@ export async function getOrCreateStripeCustomer(stripe: Stripe, user: any) {
     metadata: { userId: user.id }
   });
 
-  updateStoredUser(user.id, (entry) => {
+  await updateStoredUser(user.id, (entry) => {
     entry.stripeCustomerId = customer.id;
   });
 
@@ -102,7 +102,7 @@ async function resolveSubscription(stripe: Stripe, user: any) {
     null;
 
   if (subscription && subscription.id !== user.stripeSubscriptionId) {
-    updateStoredUser(user.id, (entry) => {
+    await updateStoredUser(user.id, (entry) => {
       entry.stripeSubscriptionId = subscription.id;
     });
   }
@@ -160,13 +160,13 @@ function syncPlanFields(user: any, subscription: Stripe.Subscription | null) {
 }
 
 export async function syncUserFromSubscription(stripe: Stripe, userId: string) {
-  const user = findUserById(userId);
+  const user = await findUserById(userId);
   if (!user) {
     return null;
   }
 
   const subscription = await resolveSubscription(stripe, user);
-  const updated = updateStoredUser(userId, (entry) => {
+  const updated = await updateStoredUser(userId, (entry) => {
     syncPlanFields(entry, subscription);
   });
 
@@ -191,7 +191,7 @@ export async function syncUserFromCheckoutSession(stripe: Stripe, sessionId: str
         })
       : null;
 
-  const updated = updateStoredUser(userId, (entry) => {
+  const updated = await updateStoredUser(userId, (entry) => {
     entry.stripeCustomerId =
       typeof checkoutSession.customer === "string"
         ? checkoutSession.customer
@@ -226,7 +226,7 @@ export async function getBillingSummary(stripe: Stripe | null, user: any): Promi
   const cardPaymentMethod =
     customer?.id ? await resolvePaymentMethod(stripe, customer.id, subscription) : null;
 
-  updateStoredUser(user.id, (entry) => {
+  await updateStoredUser(user.id, (entry) => {
     if (customer?.id) {
       entry.stripeCustomerId = customer.id;
     }

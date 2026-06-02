@@ -40,22 +40,22 @@ export async function GET() {
   return NextResponse.json({
     success: true,
     stats: {
-      totalUsers: getUsers<any>().length,
-      totalReports: getReports<any>().length,
-      totalBlogs: getBlogs().length,
-      totalContacts: getContacts<any>().length,
-      totalVisits: getVisits<any>().length
+      totalUsers: (await getUsers<any>()).length,
+      totalReports: (await getReports<any>()).length,
+      totalBlogs: (await getBlogs()).length,
+      totalContacts: (await getContacts<any>()).length,
+      totalVisits: (await getVisits<any>()).length
     },
-    users: getUsers<any>(),
-    reports: getReports<any>(),
-    contacts: getContacts<any>(),
-    blogs: getBlogs(),
-    payments: getPayments<any>(),
-    plans: getPlans<any>(),
-    visits: getVisits<any>(),
-    feedbacks: getFeedbacks<any>(),
-    usage: getUsage<any>(),
-    settings: getSettings<any>(),
+    users: await getUsers<any>(),
+    reports: await getReports<any>(),
+    contacts: await getContacts<any>(),
+    blogs: await getBlogs(),
+    payments: await getPayments<any>(),
+    plans: await getPlans<any>(),
+    visits: await getVisits<any>(),
+    feedbacks: await getFeedbacks<any>(),
+    usage: await getUsage<any>(),
+    settings: await getSettings<any>(),
     runtime: {
       ...getRuntimeSettings(),
       stripe: {
@@ -78,17 +78,17 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
 
   if (body.action === "updateSettings") {
-    const current = getSettings<any>();
-    writeSettings({
+    const current = await getSettings<any>();
+    await writeSettings({
       ...current,
       ...body.settings
     });
-    updateStaticSitemap();
+    await updateStaticSitemap();
     return NextResponse.json({ success: true });
   }
 
   if (body.action === "updateUser") {
-    const users = getUsers<any>();
+    const users = await getUsers<any>();
     const user = users.find((entry) => entry.id === body.userId);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -98,16 +98,16 @@ export async function POST(request: NextRequest) {
     user.role = body.role || user.role;
     user.is_active = body.is_active !== undefined ? Boolean(body.is_active) : user.is_active;
     user.analysesLimit = user.plan === "pro" ? 999999 : 10;
-    writeUsers(users);
+    await writeUsers(users);
     return NextResponse.json({ success: true });
   }
 
   if (body.action === "deleteUser") {
-    const users = getUsers<any>();
+    const users = await getUsers<any>();
     if (body.userId === session.id) {
       return NextResponse.json({ error: "You cannot delete your own admin account." }, { status: 400 });
     }
-    writeUsers(users.filter((entry) => entry.id !== body.userId));
+    await writeUsers(users.filter((entry) => entry.id !== body.userId));
     return NextResponse.json({ success: true });
   }
 
@@ -115,12 +115,12 @@ export async function POST(request: NextRequest) {
     if (!Array.isArray(body.plans)) {
       return NextResponse.json({ error: "Plans array is required." }, { status: 400 });
     }
-    writePlans(body.plans);
+    await writePlans(body.plans);
     return NextResponse.json({ success: true });
   }
 
   if (body.action === "createBlog") {
-    const blogs = getBlogs();
+    const blogs = await getBlogs();
     const baseSlug = slugify(body.title);
     let slug = baseSlug;
     let counter = 1;
@@ -138,18 +138,18 @@ export async function POST(request: NextRequest) {
       tags: body.tags || body.keywords || [],
       seoTitle: body.seoTitle || body.title,
       seoDescription: body.seoDescription || body.excerpt,
-      canonicalUrl: body.canonicalUrl || `${(getSettings<any>()?.canonicalUrl || process.env.NEXT_PUBLIC_APP_URL || "https://labexplain.online").replace(/\/$/, "")}/blog/${slug}`,
+      canonicalUrl: body.canonicalUrl || `${((await getSettings<any>())?.canonicalUrl || process.env.NEXT_PUBLIC_APP_URL || "https://labexplain.online").replace(/\/$/, "")}/blog/${slug}`,
       publishedAt: new Date().toISOString().slice(0, 10),
       content: body.content,
       cover: body.cover || ""
     });
-    writeBlogs(blogs);
-    updateStaticSitemap();
+    await writeBlogs(blogs);
+    await updateStaticSitemap();
     return NextResponse.json({ success: true });
   }
 
   if (body.action === "updateBlog") {
-    const blogs = getBlogs();
+    const blogs = await getBlogs();
     const index = blogs.findIndex((entry) => entry.id === body.blogId);
     if (index === -1) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });
@@ -167,21 +167,21 @@ export async function POST(request: NextRequest) {
       seoDescription: body.seoDescription ?? current.seoDescription,
       canonicalUrl: body.canonicalUrl ?? current.canonicalUrl
     };
-    writeBlogs(blogs);
-    updateStaticSitemap();
+    await writeBlogs(blogs);
+    await updateStaticSitemap();
     return NextResponse.json({ success: true });
   }
 
   if (body.action === "deleteBlog") {
-    const blogs = getBlogs();
-    writeBlogs(blogs.filter((entry) => entry.id !== body.blogId));
-    updateStaticSitemap();
+    const blogs = await getBlogs();
+    await writeBlogs(blogs.filter((entry) => entry.id !== body.blogId));
+    await updateStaticSitemap();
     return NextResponse.json({ success: true });
   }
 
   if (body.action === "deleteContact") {
-    const contacts = getContacts<any>().filter((contact) => contact.id !== body.contactId);
-    writeContacts(contacts);
+    const contacts = (await getContacts<any>()).filter((contact) => contact.id !== body.contactId);
+    await writeContacts(contacts);
     return NextResponse.json({ success: true });
   }
 

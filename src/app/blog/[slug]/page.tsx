@@ -7,14 +7,14 @@ import Link from "next/link";
 import { normalizeBaseUrl, resolveMetadataImageUrl } from "@/lib/seo";
 
 export async function generateStaticParams() {
-  return getBlogs().map((post) => ({ slug: post.slug }));
+  return (await getBlogs()).map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogs().find((entry) => entry.slug === slug);
+  const post = (await getBlogs()).find((entry) => entry.slug === slug);
   if (!post) return {};
-  const settings = getSettings<any>();
+  const settings = await getSettings<any>();
   const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
   const canonicalUrl = post.canonicalUrl?.replace(/^https?:\/\/localhost:\d+/, baseUrl) || `${baseUrl}/blog/${post.slug}`;
   const ogImage = resolveMetadataImageUrl(baseUrl, post.cover || settings?.ogImageUrl);
@@ -44,10 +44,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const posts = getBlogs();
+  const posts = await getBlogs();
   const post = posts.find((entry) => entry.slug === slug);
   if (!post) notFound();
-  const settings = getSettings<any>();
+  const settings = await getSettings<any>();
   const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
   const canonicalUrl = post.canonicalUrl?.replace(/^https?:\/\/localhost:\d+/, baseUrl) || `${baseUrl}/blog/${post.slug}`;
   const ogImage = resolveMetadataImageUrl(baseUrl, post.cover || settings?.ogImageUrl);

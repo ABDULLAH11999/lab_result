@@ -15,7 +15,7 @@ export async function POST() {
     return NextResponse.json({ error: "Stripe is not configured yet." }, { status: 400 });
   }
 
-  const user = findUserById(session.id);
+  const user = await findUserById(session.id);
   if (!user) {
     return NextResponse.json({ error: "User not found." }, { status: 404 });
   }

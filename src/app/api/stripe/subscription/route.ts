@@ -16,7 +16,7 @@ export async function DELETE() {
     return NextResponse.json({ error: "Stripe is not configured yet." }, { status: 400 });
   }
 
-  const user = findUserById(session.id);
+  const user = await findUserById(session.id);
   if (!user || !user.stripeSubscriptionId) {
     return NextResponse.json({ error: "No active subscription was found." }, { status: 404 });
   }
@@ -50,7 +50,7 @@ export async function DELETE() {
     }
   }
 
-  const users = getUsers<any>();
+  const users = await getUsers<any>();
   const storedUser = users.find((entry) => entry.id === session.id);
   if (storedUser) {
     storedUser.plan = "free";
@@ -60,7 +60,7 @@ export async function DELETE() {
     storedUser.subscriptionCancelAtPeriodEnd = false;
     storedUser.subscriptionCurrentPeriodEnd = null;
     storedUser.stripePaymentMethodId = null;
-    writeUsers(users);
+    await writeUsers(users);
   }
 
   await syncUserFromSubscription(stripe, session.id);

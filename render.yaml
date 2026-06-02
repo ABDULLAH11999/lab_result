@@ -11,6 +11,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        sync: false
       - key: RUNTIME_DATA_DIR
         value: /var/data/labexplain
       - key: NEXT_PUBLIC_APP_URL

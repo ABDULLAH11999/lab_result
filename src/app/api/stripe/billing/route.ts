@@ -11,7 +11,7 @@ export async function GET() {
   }
 
   const runtime = getRuntimeSettings();
-  const user = findUserById(session.id);
+  const user = await findUserById(session.id);
   if (!user) {
     return NextResponse.json({ error: "User not found." }, { status: 404 });
   }
