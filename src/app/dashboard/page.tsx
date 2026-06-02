@@ -19,7 +19,7 @@ export default async function DashboardPage() {
     );
   }
 
-  const reports = getReports<any>().filter((report) => report.userId === session.id).sort((a, b) => (
+  const reports = (await getReports<any>()).filter((report) => report.userId === session.id).sort((a, b) => (
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   ));
 

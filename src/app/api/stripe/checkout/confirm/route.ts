@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing checkout session id." }, { status: 400 });
   }
 
-  const stripe = getStripe(getRuntimeSettings().stripeMode);
+  const runtime = await getRuntimeSettings();
+  const stripe = await getStripe(runtime.stripeMode);
   if (!stripe) {
     return NextResponse.json({ error: "Stripe is not configured yet." }, { status: 400 });
   }

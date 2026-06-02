@@ -13,9 +13,9 @@ export async function POST() {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const runtime = getRuntimeSettings();
-    const stripe = getStripe(runtime.stripeMode);
-    const config = getStripeClientConfig(runtime.stripeMode);
+    const runtime = await getRuntimeSettings();
+    const stripe = await getStripe(runtime.stripeMode);
+    const config = await getStripeClientConfig(runtime.stripeMode);
     if (!stripe) {
       return NextResponse.json({ error: "Stripe is not configured yet." }, { status: 400 });
     }

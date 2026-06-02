@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json({ reports: [] }, { status: 401 });
   }
 
-  const reports = getReports<any>()
+  const reports = (await getReports<any>())
     .filter((report) => report.userId === session.id)
     .map((report) => ({
       id: report.id,

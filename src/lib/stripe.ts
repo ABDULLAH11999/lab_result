@@ -1,8 +1,8 @@
 import Stripe from "stripe";
 import { getStripeEnv, type StripeMode } from "@/lib/runtime-config";
 
-export function getStripe(mode?: StripeMode) {
-  const config = getStripeEnv(mode);
+export async function getStripe(mode?: StripeMode) {
+  const config = await getStripeEnv(mode);
   if (!config.secretKey) {
     return null;
   }
@@ -10,6 +10,6 @@ export function getStripe(mode?: StripeMode) {
   return new Stripe(config.secretKey);
 }
 
-export function getStripeClientConfig(mode?: StripeMode) {
+export async function getStripeClientConfig(mode?: StripeMode) {
   return getStripeEnv(mode);
 }

@@ -9,7 +9,7 @@ import { DEFAULT_SITE_DESCRIPTION, DEFAULT_SITE_TITLE, getSiteKeywords, normaliz
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = getSettings<any>();
+  const settings = await getSettings<any>();
   const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
   const siteTitle = settings?.siteTitle || DEFAULT_SITE_TITLE;
   const siteName = settings?.siteName || "LabExplain";

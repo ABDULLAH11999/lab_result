@@ -6,8 +6,8 @@ import { sendPurchaseConfirmationUser, sendPurchaseNotificationAdmin } from "@/l
 import { syncUserFromCheckoutSession, syncUserFromSubscription } from "@/lib/stripe-billing";
 
 export async function POST(request: NextRequest) {
-  const runtime = getRuntimeSettings();
-  const stripe = getStripe(runtime.stripeMode);
+  const runtime = await getRuntimeSettings();
+  const stripe = await getStripe(runtime.stripeMode);
   const webhookSecret =
     runtime.stripeMode === "live"
       ? process.env.STRIPE_WEBHOOK_SECRET || process.env.STRIPE_TEST_WEBHOOK_SECRET

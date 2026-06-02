@@ -11,7 +11,8 @@ export async function DELETE() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const stripe = getStripe(getRuntimeSettings().stripeMode);
+  const runtime = await getRuntimeSettings();
+  const stripe = await getStripe(runtime.stripeMode);
   if (!stripe) {
     return NextResponse.json({ error: "Stripe is not configured yet." }, { status: 400 });
   }

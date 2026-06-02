@@ -7,7 +7,7 @@ import { normalizeBaseUrl } from "@/lib/seo";
 import UpgradeButton from "@/components/billing/UpgradeButton";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = normalizeBaseUrl(getSettings<any>()?.canonicalUrl);
+  const baseUrl = normalizeBaseUrl((await getSettings<any>())?.canonicalUrl);
   return {
     title: "Free Medical Report Overview & Pro Lab Tracking Pricing",
     description: "Start with free lab report analysis, medical report summaries, and blood test explanations. Upgrade for unlimited reports, history, trends, and PDF export.",

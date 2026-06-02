@@ -227,7 +227,10 @@ async function main() {
     throw new Error("DATABASE_URL is required to seed the database.");
   }
 
-  const client = new Client({ connectionString: databaseUrl });
+  const client = new Client({
+    connectionString: databaseUrl,
+    ssl: { rejectUnauthorized: false }
+  });
   await client.connect();
 
   try {

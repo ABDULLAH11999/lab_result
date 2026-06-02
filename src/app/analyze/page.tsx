@@ -4,7 +4,7 @@ import { getSettings } from "@/lib/db";
 import { DEFAULT_SITE_KEYWORDS, normalizeBaseUrl } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = getSettings<any>();
+  const settings = await getSettings<any>();
   const baseUrl = normalizeBaseUrl(settings?.canonicalUrl);
 
   return {

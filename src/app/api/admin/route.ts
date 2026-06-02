@@ -37,6 +37,9 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const runtime = await getRuntimeSettings();
+  const stripeEnv = await getStripeEnv(runtime.stripeMode);
+
   return NextResponse.json({
     success: true,
     stats: {
@@ -57,13 +60,13 @@ export async function GET() {
     usage: await getUsage<any>(),
     settings: await getSettings<any>(),
     runtime: {
-      ...getRuntimeSettings(),
+      ...runtime,
       stripe: {
-        mode: getStripeEnv().mode,
-        hasSecret: Boolean(getStripeEnv().secretKey),
-        hasPublishable: Boolean(getStripeEnv().publishableKey),
-        hasWebhook: Boolean(getStripeEnv().webhookSecret),
-        hasPriceId: Boolean(getStripeEnv().priceId)
+        ...stripeEnv,
+        hasSecret: Boolean(stripeEnv.secretKey),
+        hasPublishable: Boolean(stripeEnv.publishableKey),
+        hasWebhook: Boolean(stripeEnv.webhookSecret),
+        hasPriceId: Boolean(stripeEnv.priceId)
       }
     }
   });

@@ -11,8 +11,8 @@ function cleanStripeValue(value?: string) {
   return normalized;
 }
 
-export function getRuntimeSettings() {
-  const settings = getSettings<any>();
+export async function getRuntimeSettings() {
+  const settings = await getSettings<any>();
 
   return {
     stripeMode: (settings?.stripeMode === "live" ? "live" : "test") as StripeMode,
@@ -26,8 +26,8 @@ export function getRuntimeSettings() {
   };
 }
 
-export function getStripeEnv(mode?: StripeMode) {
-  const activeMode = mode || getRuntimeSettings().stripeMode;
+export async function getStripeEnv(mode?: StripeMode) {
+  const activeMode = mode || (await getRuntimeSettings()).stripeMode;
 
   if (activeMode === "live") {
     return {

@@ -27,7 +27,7 @@ function keyValue(label: string, value: string) {
   `;
 }
 
-function renderEmailTemplate({
+async function renderEmailTemplate({
   preheader,
   title,
   eyebrow,
@@ -40,7 +40,7 @@ function renderEmailTemplate({
   body: string;
   footerNote?: string;
 }) {
-  const runtime = getRuntimeSettings();
+  const runtime = await getRuntimeSettings();
   const supportEmail = runtime.supportEmail || "hello@labexplain.com";
 
   return `
@@ -113,13 +113,13 @@ export async function sendOtpEmail(email: string, code: string) {
     return { delivered: false, previewCode: code };
   }
 
-  const runtime = getRuntimeSettings();
+  const runtime = await getRuntimeSettings();
 
   await resend.emails.send({
     from: runtime.mailFrom,
     to: email,
     subject: "Your LabExplain verification code",
-    html: renderEmailTemplate({
+    html: await renderEmailTemplate({
       preheader: `Your LabExplain code is ${code}. It expires in 10 minutes.`,
       eyebrow: "Verification code",
       title: "Confirm your LabExplain account",
@@ -144,7 +144,7 @@ export async function sendContactNotification(payload: {
   message: string;
 }) {
   if (!resend) return { delivered: false };
-  const runtime = getRuntimeSettings();
+  const runtime = await getRuntimeSettings();
   const safeMessage = escapeHtml(payload.message).replace(/\n/g, "<br>");
 
   await resend.emails.send({
@@ -152,7 +152,7 @@ export async function sendContactNotification(payload: {
     to: runtime.supportEmail,
     replyTo: payload.email,
     subject: `[LabExplain Contact] ${payload.subject}`,
-    html: renderEmailTemplate({
+    html: await renderEmailTemplate({
       preheader: `New contact message from ${payload.email}`,
       eyebrow: "Contact form",
       title: payload.subject || "New LabExplain message",
@@ -172,13 +172,13 @@ export async function sendContactNotification(payload: {
 
 export async function sendPurchaseConfirmationUser(email: string, planName: string) {
   if (!resend) return { delivered: false };
-  const runtime = getRuntimeSettings();
+  const runtime = await getRuntimeSettings();
 
   await resend.emails.send({
     from: runtime.mailFrom,
     to: email,
     subject: `Your ${planName} plan is active`,
-    html: renderEmailTemplate({
+    html: await renderEmailTemplate({
       preheader: `Your LabExplain ${planName} plan is now active.`,
       eyebrow: "Subscription active",
       title: "Your LabExplain plan is ready",
@@ -196,8 +196,8 @@ export async function sendPurchaseConfirmationUser(email: string, planName: stri
 
 export async function sendPurchaseNotificationAdmin(customerEmail: string, planName: string) {
   if (!resend) return { delivered: false };
-  const runtime = getRuntimeSettings();
-  const settings = getSettings<any>();
+  const runtime = await getRuntimeSettings();
+  const settings = await getSettings<any>();
   let receivers: string[] = settings.emailReceivers || [];
   if (receivers.length === 0) {
     receivers = [runtime.supportEmail || "labtest7940@gmail.com"];
@@ -209,7 +209,7 @@ export async function sendPurchaseNotificationAdmin(customerEmail: string, planN
         from: runtime.mailFrom,
         to: receiver,
         subject: `[LabExplain Admin] New ${planName} purchase`,
-        html: renderEmailTemplate({
+        html: await renderEmailTemplate({
           preheader: `New paid subscription from ${customerEmail}`,
           eyebrow: "Paid plan purchase",
           title: "New LabExplain subscription",
@@ -233,13 +233,13 @@ export async function sendPurchaseNotificationAdmin(customerEmail: string, planN
 
 export async function sendTestReceiverEmail(email: string) {
   if (!resend) return { delivered: false };
-  const runtime = getRuntimeSettings();
+  const runtime = await getRuntimeSettings();
 
   await resend.emails.send({
     from: runtime.mailFrom,
     to: email,
     subject: "LabExplain email test successful",
-    html: renderEmailTemplate({
+    html: await renderEmailTemplate({
       preheader: "Your LabExplain outbound email test was delivered successfully.",
       eyebrow: "Email test",
       title: "Outbound email is working",

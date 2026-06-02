@@ -203,7 +203,7 @@ export async function syncUserFromCheckoutSession(stripe: Stripe, sessionId: str
 }
 
 export async function getBillingSummary(stripe: Stripe | null, user: any): Promise<BillingSummary> {
-  const runtime = getRuntimeSettings();
+  const runtime = await getRuntimeSettings();
   if (!stripe) {
     return {
       hasStripe: false,

@@ -5,7 +5,7 @@ import { hashPassword, setSession } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   const { email, password } = await request.json();
-  const user = getUsers<any>().find(
+  const user = (await getUsers<any>()).find(
     (entry) => entry.email === email?.toLowerCase() && entry.password === hashPassword(password || "")
   );
 

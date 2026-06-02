@@ -10,14 +10,14 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const runtime = getRuntimeSettings();
+  const runtime = await getRuntimeSettings();
   const user = await findUserById(session.id);
   if (!user) {
     return NextResponse.json({ error: "User not found." }, { status: 404 });
   }
 
-  const stripe = getStripe(runtime.stripeMode);
-  const config = getStripeClientConfig(runtime.stripeMode);
+  const stripe = await getStripe(runtime.stripeMode);
+  const config = await getStripeClientConfig(runtime.stripeMode);
   const billing = await getBillingSummary(stripe, user);
 
   return NextResponse.json({
