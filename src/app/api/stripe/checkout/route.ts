@@ -4,6 +4,7 @@ import { getStripe, getStripeClientConfig } from "@/lib/stripe";
 import { getRuntimeSettings } from "@/lib/runtime-config";
 import { findUserById, getOrCreateStripeCustomer, syncUserFromSubscription } from "@/lib/stripe-billing";
 import { getPlans, getSettings } from "@/lib/db";
+import { normalizePlans } from "@/lib/plans";
 import { normalizeBaseUrl } from "@/lib/seo";
 
 export async function POST() {
@@ -32,7 +33,7 @@ export async function POST() {
 
     const customer = await getOrCreateStripeCustomer(stripe, user);
     const baseUrl = normalizeBaseUrl((await getSettings<any>())?.canonicalUrl);
-    const proPlan = (await getPlans<any>()).find((plan) => plan.id === "pro");
+    const proPlan = normalizePlans(await getPlans<any>()).find((plan) => plan.id === "pro");
     const amount = Math.max(50, Math.round(Number(proPlan?.price || 9) * 100));
     if (!config.priceId && runtime.stripeMode !== "test") {
       return NextResponse.json({ error: "Live Stripe mode requires a valid Stripe price ID." }, { status: 400 });

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getSession } from "@/lib/auth";
 import { getPlans, getSettings } from "@/lib/db";
 import { normalizeBaseUrl } from "@/lib/seo";
+import { normalizePlans, publicPlanCatalog } from "@/lib/plans";
 import UpgradeButton from "@/components/billing/UpgradeButton";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,12 +18,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const fallbackPlans = [
-  { id: "guest", name: "Guest", price: 0, isVisible: true, cta: "Start free", href: "/analyze", features: ["3 analyses/day", "Full report explanation", "Doctor question list"] },
-  { id: "free", name: "Free", price: 0, isVisible: true, cta: "Create account", href: "/auth/signup", features: ["10 analyses/day", "Save last 5 reports", "Basic history"] },
-  { id: "pro", name: "Pro", price: 9, isVisible: true, cta: "Go Pro", href: "/auth/signup?plan=pro", features: ["Unlimited analyses", "Full history", "Trend comparison", "PDF export"] }
-];
-
 function formatPrice(plan: any) {
   if (typeof plan.price === "string") {
     return plan.price;
@@ -35,8 +30,8 @@ function formatPrice(plan: any) {
 
 export default async function PricingPage() {
   const session = await getSession();
-  const plansFromDb = (await getPlans<any>()).filter((plan) => plan.isVisible !== false);
-  const plans = plansFromDb.length ? plansFromDb : fallbackPlans;
+  const plans = normalizePlans(await getPlans<any>()).filter((plan) => plan.isVisible !== false);
+  const visiblePlans = plans.length ? plans : publicPlanCatalog;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
@@ -45,7 +40,7 @@ export default async function PricingPage() {
         <p className="mt-3 text-slate-600">Start free, then upgrade when you want history, trends, and export.</p>
       </div>
       <div className="grid gap-6 md:grid-cols-3">
-        {plans.map((plan) => (
+        {visiblePlans.map((plan) => (
           <div key={plan.id || plan.name} className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="font-syne text-2xl font-bold text-slate-950">{plan.name}</h2>
             <p className="mt-3 text-4xl font-extrabold text-slate-950">{formatPrice(plan)}</p>

@@ -19,6 +19,7 @@ import {
 } from "@/lib/db";
 import { sendContactNotification, sendTestReceiverEmail } from "@/lib/mail";
 import { getRuntimeSettings, getStripeEnv } from "@/lib/runtime-config";
+import { normalizePlans } from "@/lib/plans";
 import { updateStaticSitemap } from "@/lib/sitemap";
 import { slugify, uid } from "@/lib/utils";
 
@@ -118,7 +119,7 @@ export async function POST(request: NextRequest) {
     if (!Array.isArray(body.plans)) {
       return NextResponse.json({ error: "Plans array is required." }, { status: 400 });
     }
-    await writePlans(body.plans.map((plan: any) => ({
+    await writePlans(normalizePlans(body.plans).map((plan) => ({
       ...plan,
       isVisible: plan.isVisible !== false
     })));

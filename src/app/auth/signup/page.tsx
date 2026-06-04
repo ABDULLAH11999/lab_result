@@ -1,5 +1,6 @@
 import SignupForm from "@/components/auth/SignupForm";
 import { getPlans } from "@/lib/db";
+import { normalizePlans } from "@/lib/plans";
 import type { Plan } from "@/types";
 
 export default async function SignupPage({
@@ -8,7 +9,7 @@ export default async function SignupPage({
   searchParams: Promise<{ plan?: string }>;
 }) {
   const params = await searchParams;
-  const availablePlans = (await getPlans<any>())
+  const availablePlans = normalizePlans(await getPlans<any>())
     .filter((plan) => plan.isVisible !== false)
     .map((plan) => plan.id)
     .filter((plan): plan is Plan => plan === "free" || plan === "pro");
