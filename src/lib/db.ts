@@ -38,6 +38,7 @@ const FILES: Record<TableName, string> = {
   blogs: path.join(DATA_DIR, "blogs.json")
 };
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
+const SETTINGS_RUNTIME_FILE = path.join(RUNTIME_DIR, "settings.json");
 
 const DATABASE_URL = process.env.DATABASE_URL?.trim() || "";
 const USE_DATABASE = Boolean(DATABASE_URL) && process.env.NEXT_PHASE !== "phase-production-build";
@@ -85,6 +86,23 @@ function readLegacyBootstrap(fileName: string, fallback: string) {
   return fallback;
 }
 
+function uniquePaths(paths: string[]) {
+  return Array.from(new Set(paths));
+}
+
+function getMirrorPaths(tableName: TableName) {
+  const fileName = path.basename(FILES[tableName]);
+  return uniquePaths([
+    FILES[tableName],
+    path.join(DATA_DIR, fileName),
+    path.join(DEFAULT_RUNTIME_DIR, fileName)
+  ]);
+}
+
+function getSettingsPaths() {
+  return uniquePaths([SETTINGS_FILE, SETTINGS_RUNTIME_FILE]);
+}
+
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -95,15 +113,19 @@ function ensureDataDir() {
   }
 
   for (const file of Object.values(FILES)) {
-    if (!fs.existsSync(file)) {
-      const fileName = path.basename(file);
-      const fallback = fileName === "settings.json" ? "{}" : "[]";
-      fs.writeFileSync(file, readLegacyBootstrap(fileName, fallback));
+    for (const candidate of uniquePaths([file, path.join(DATA_DIR, path.basename(file)), path.join(DEFAULT_RUNTIME_DIR, path.basename(file))])) {
+      if (!fs.existsSync(candidate)) {
+        const fileName = path.basename(candidate);
+        const fallback = fileName === "settings.json" ? "{}" : "[]";
+        fs.writeFileSync(candidate, readLegacyBootstrap(fileName, fallback));
+      }
     }
   }
 
-  if (!fs.existsSync(SETTINGS_FILE)) {
-    fs.writeFileSync(SETTINGS_FILE, readLegacyBootstrap("settings.json", "{}"));
+  for (const candidate of getSettingsPaths()) {
+    if (!fs.existsSync(candidate)) {
+      fs.writeFileSync(candidate, readLegacyBootstrap("settings.json", "{}"));
+    }
   }
 
   let plans: any[] = [];
@@ -114,11 +136,12 @@ function ensureDataDir() {
   }
   if (!plans.length) {
     plans = [
-      { id: "guest", name: "Guest", price: 0, isPaid: false, analysesLimit: 3, features: ["3 analyses/day", "Plain-English explanation", "Doctor questions"] },
-      { id: "free", name: "Free", price: 0, isPaid: false, analysesLimit: 10, features: ["10 analyses/day", "Save last 5 reports", "Basic dashboard"] },
-      { id: "pro", name: "Pro", price: 9, isPaid: true, analysesLimit: 999999, features: ["Unlimited analyses", "Full history", "Trend tracking", "PDF export"] }
+      { id: "guest", name: "Guest", price: 0, isPaid: false, isVisible: true, analysesLimit: 3, features: ["3 analyses/day", "Plain-English explanation", "Doctor questions"] },
+      { id: "free", name: "Free", price: 0, isPaid: false, isVisible: true, analysesLimit: 10, features: ["10 analyses/day", "Save last 5 reports", "Basic dashboard"] },
+      { id: "pro", name: "Pro", price: 9, isPaid: true, isVisible: true, analysesLimit: 999999, features: ["Unlimited analyses", "Full history", "Trend tracking", "PDF export"] }
     ];
     fs.writeFileSync(FILES.plans, JSON.stringify(plans, null, 2));
+    fs.writeFileSync(path.join(DATA_DIR, "plans.json"), JSON.stringify(plans, null, 2));
   }
 
   let users: any[] = [];
@@ -142,6 +165,7 @@ function ensureDataDir() {
       verifiedAt: new Date().toISOString()
     });
     fs.writeFileSync(FILES.users, JSON.stringify(users, null, 2));
+    fs.writeFileSync(path.join(DATA_DIR, "users.json"), JSON.stringify(users, null, 2));
   }
 }
 
@@ -228,9 +252,22 @@ function readLocalTable<T>(filePath: string): T[] {
   }
 }
 
-function writeLocalTable<T>(filePath: string, rows: T[]) {
+function writeLocalTable<T>(tableName: TableName, rows: T[]) {
   ensureDataDir();
-  fs.writeFileSync(filePath, JSON.stringify(rows, null, 2));
+  const payload = JSON.stringify(rows, null, 2);
+  for (const filePath of getMirrorPaths(tableName)) {
+    fs.writeFileSync(filePath, payload);
+  }
+}
+
+function readLocalTableByName<T>(tableName: TableName): T[] {
+  for (const candidate of getMirrorPaths(tableName)) {
+    if (fs.existsSync(candidate)) {
+      return readLocalTable<T>(candidate);
+    }
+  }
+
+  return [];
 }
 
 async function readDbTable<T>(tableName: TableName): Promise<T[]> {
@@ -260,17 +297,42 @@ async function writeDbTable<T extends { id?: string }>(tableName: TableName, row
 
 export async function readTable<T>(tableKey: TableName): Promise<T[]> {
   if (!pool) {
-    return readLocalTable<T>(FILES[tableKey]);
+    return readLocalTableByName<T>(tableKey);
   }
-  return readDbTable<T>(tableKey);
+  try {
+    return await readDbTable<T>(tableKey);
+  } catch (error) {
+    console.warn(`Falling back to local ${tableKey} data after database read failed.`, error);
+    return readLocalTableByName<T>(tableKey);
+  }
 }
 
 export async function writeTable<T extends { id?: string }>(tableKey: TableName, rows: T[]) {
+  let dbError: unknown = null;
+
   if (!pool) {
-    writeLocalTable(FILES[tableKey], rows);
+    writeLocalTable(tableKey, rows);
     return;
   }
-  await writeDbTable(tableKey, rows);
+
+  try {
+    await writeDbTable(tableKey, rows);
+  } catch (error) {
+    dbError = error;
+  }
+
+  try {
+    writeLocalTable(tableKey, rows);
+  } catch (localError) {
+    if (dbError) {
+      throw dbError;
+    }
+    throw localError;
+  }
+
+  if (dbError) {
+    console.warn(`Database write failed for ${tableKey}; local mirror was updated instead.`, dbError);
+  }
 }
 
 export async function getUsers<T = any>() {
@@ -366,31 +428,67 @@ export function getPublicUser(user: any): SessionUser {
 export async function getSettings<T = any>() {
   if (!pool) {
     ensureDataDir();
-    try {
-      return JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf8")) as T;
-    } catch {
-      return {};
+    for (const candidate of getSettingsPaths()) {
+      try {
+        if (fs.existsSync(candidate)) {
+          return JSON.parse(fs.readFileSync(candidate, "utf8")) as T;
+        }
+      } catch {
+        // Try the next local mirror.
+      }
     }
+    return {};
   }
 
-  await ensureSchema();
-  const result = await pool!.query(`SELECT data FROM ${SETTINGS_TABLE} WHERE key = 'global' LIMIT 1`);
-  return (result.rows[0]?.data as T) || {};
+  try {
+    await ensureSchema();
+    const result = await pool!.query(`SELECT data FROM ${SETTINGS_TABLE} WHERE key = 'global' LIMIT 1`);
+    return (result.rows[0]?.data as T) || {};
+  } catch (error) {
+    console.warn("Falling back to local settings after database read failed.", error);
+    for (const candidate of getSettingsPaths()) {
+      try {
+        if (fs.existsSync(candidate)) {
+          return JSON.parse(fs.readFileSync(candidate, "utf8")) as T;
+        }
+      } catch {
+        // Try the next local mirror.
+      }
+    }
+    return {};
+  }
 }
 
 export async function writeSettings<T>(settings: T) {
+  const payload = JSON.stringify(settings, null, 2);
   if (!pool) {
     ensureDataDir();
-    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
+    for (const candidate of getSettingsPaths()) {
+      fs.writeFileSync(candidate, payload);
+    }
     return;
   }
 
-  await ensureSchema();
-  await pool!.query(
-    `INSERT INTO ${SETTINGS_TABLE} (key, data, updated_at)
-     VALUES ('global', $1::jsonb, NOW())
-     ON CONFLICT (key)
-     DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()`,
-    [JSON.stringify(settings)]
-  );
+  let dbError: unknown = null;
+  try {
+    await ensureSchema();
+    await pool!.query(
+      `INSERT INTO ${SETTINGS_TABLE} (key, data, updated_at)
+       VALUES ('global', $1::jsonb, NOW())
+       ON CONFLICT (key)
+       DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()`,
+      [payload]
+    );
+  } catch (error) {
+    dbError = error;
+  }
+
+  ensureDataDir();
+  for (const candidate of getSettingsPaths()) {
+    fs.writeFileSync(candidate, payload);
+  }
+
+  if (dbError) {
+    console.warn("Database write failed for settings; local mirror was updated instead.", dbError);
+  }
 }

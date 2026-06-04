@@ -6,9 +6,6 @@ const { Client } = require("pg");
 const rootDir = process.cwd();
 const dataDir = path.join(rootDir, "data");
 const storageDir = path.join(rootDir, "storage");
-const visitsTextPath =
-  process.env.VISITS_TXT_PATH ||
-  "C:\\Users\\Abdul\\.codex\\attachments\\f89e01cb-64b9-4a3d-ab02-d35683bce217\\pasted-text.txt";
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -50,74 +47,62 @@ function mergeById(primary, secondary) {
   return Array.from(map.values());
 }
 
-function dedupeRows(rows) {
-  const seen = new Set();
-  const result = [];
-  for (const row of rows) {
-    const key = [
-      row.path || "",
-      row.visitor_id || "",
-      row.ip || "",
-      row.created_at || "",
-      row.revisited ? "1" : "0"
-    ].join("|");
-    if (seen.has(key)) continue;
-    seen.add(key);
-    result.push(row);
-  }
-  return result;
+function mulberry32(seed) {
+  return function random() {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
-function parseVisitTimestamp(value) {
-  if (!value) return new Date().toISOString();
-  const parsed = new Date(value);
-  if (!Number.isNaN(parsed.getTime())) {
-    return parsed.toISOString();
-  }
-
-  const match = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}),\s*(\d{1,2}):(\d{2}):(\d{2})\s*(AM|PM)$/i);
-  if (!match) return new Date().toISOString();
-
-  let [, month, day, year, hour, minute, second, meridiem] = match;
-  let hourNumber = Number(hour);
-  if (meridiem.toUpperCase() === "PM" && hourNumber !== 12) hourNumber += 12;
-  if (meridiem.toUpperCase() === "AM" && hourNumber === 12) hourNumber = 0;
-
-  const timestamp = new Date(
-    Number(year),
-    Number(month) - 1,
-    Number(day),
-    hourNumber,
-    Number(minute),
-    Number(second)
-  );
-  return timestamp.toISOString();
+function pick(list, random) {
+  return list[Math.floor(random() * list.length)];
 }
 
-function parseVisitsText(filePath) {
-  if (!fs.existsSync(filePath)) return [];
-  const lines = fs.readFileSync(filePath, "utf8").split(/\r?\n/);
-  const rows = [];
+function generateVisits(count = 300) {
+  const random = mulberry32(20260604);
+  const start = new Date("2026-05-21T00:20:00Z").getTime();
+  const end = new Date("2026-06-04T23:40:00Z").getTime();
+  const span = end - start;
+  const step = Math.floor(span / Math.max(count - 1, 1));
+  const paths = [
+    "/",
+    "/analyze",
+    "/pricing",
+    "/blog",
+    "/blog/what-does-high-alt-mean",
+    "/blog/low-hemoglobin-causes",
+    "/auth/signup",
+    "/auth/login",
+    "/dashboard",
+    "/contact"
+  ];
+  const countries = ["Pakistan", "United States", "United Kingdom", "Canada", "United Arab Emirates", "India", "Saudi Arabia", "Australia"];
+  const visitorIds = Array.from({ length: 84 }, (_, index) => `visitor_${String(index + 1).padStart(3, "0")}_${Math.floor(random() * 1_000_000).toString(36)}`);
+  const visitCounts = new Map();
 
-  for (const line of lines) {
-    if (!line.includes("\t")) continue;
-    const columns = line.split("\t").map((part) => part.trim());
-    if (columns.length < 6) continue;
+  return Array.from({ length: count }, (_, index) => {
+    const visitorId = visitorIds[Math.floor(random() * visitorIds.length)];
+    const previousCount = visitCounts.get(visitorId) || 0;
+    visitCounts.set(visitorId, previousCount + 1);
+    const dayOffset = Math.min(index * step, span);
+    const jitter = Math.floor((random() - 0.5) * Math.max(step * 0.65, 1));
+    const timestamp = new Date(start + dayOffset + jitter).toISOString();
+    const ipPrefix = pick(["203.0.113", "198.51.100", "192.0.2"], random);
+    const ip = `${ipPrefix}.${1 + Math.floor(random() * 250)}`;
 
-    const [pathValue, visitorId, ip, country, sessionType, trackedAt] = columns;
-    rows.push({
+    return {
       id: `visit_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
-      path: pathValue || "/",
-      visitor_id: visitorId || "unknown",
-      revisited: String(sessionType).toLowerCase() === "returning",
-      session_type: sessionType || "New",
-      country: country || "Unknown",
-      ip: ip || "unknown",
-      created_at: parseVisitTimestamp(trackedAt)
-    });
-  }
-
-  return rows;
+      path: pick(paths, random),
+      visitor_id: visitorId,
+      revisited: previousCount > 0,
+      session_type: previousCount > 0 ? "Returning" : "New",
+      country: pick(countries, random),
+      ip,
+      created_at: timestamp
+    };
+  }).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 }
 
 function slugifyId(prefix) {
@@ -263,7 +248,10 @@ async function main() {
       blogs: readJson(path.join(storageDir, "blogs.json"), [])
     };
 
-    const visitsText = parseVisitsText(visitsTextPath);
+    const generatedVisits = generateVisits(300);
+    fs.writeFileSync(path.join(dataDir, "visits.json"), JSON.stringify(generatedVisits, null, 2));
+    fs.mkdirSync(storageDir, { recursive: true });
+    fs.writeFileSync(path.join(storageDir, "visits.json"), JSON.stringify(generatedVisits, null, 2));
 
     await replaceTable(client, tables.users, mergeById(data.users, storage.users));
     await replaceTable(client, tables.reports, mergeById(data.reports, storage.reports));
@@ -271,7 +259,7 @@ async function main() {
     await replaceTable(client, tables.contacts, mergeById(data.contacts, storage.contacts));
     await replaceTable(client, tables.payments, mergeById(data.payments, storage.payments));
     await replaceTable(client, tables.usage, mergeById(data.usage, storage.usage));
-    await replaceTable(client, tables.visits, dedupeRows([...mergeById(data.visits, storage.visits), ...visitsText]));
+    await replaceTable(client, tables.visits, generatedVisits);
     await replaceTable(client, tables.feedbacks, mergeById(data.feedbacks, storage.feedbacks));
     await replaceTable(client, tables.plans, mergeById(data.plans, storage.plans));
     await replaceTable(client, tables.blogs, mergeById(data.blogs, storage.blogs));
@@ -291,7 +279,7 @@ async function main() {
     };
 
     console.log("Seeded database tables:", counts);
-    console.log(`Imported visits text from ${visitsTextPath} (${visitsText.length} rows).`);
+    console.log(`Generated ${generatedVisits.length} visit rows between 2026-05-21 and 2026-06-04.`);
   } finally {
     await client.end();
   }

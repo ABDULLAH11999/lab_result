@@ -3,13 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import type { Plan } from "@/types";
 
-export default function SignupForm({ initialPlan = "free" }: { initialPlan?: "free" | "pro" }) {
+export default function SignupForm({
+  initialPlan = "free",
+  availablePlans = ["free", "pro"]
+}: {
+  initialPlan?: Plan;
+  availablePlans?: Plan[];
+}) {
   const [step, setStep] = useState<"form" | "otp">("form");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [otpHint, setOtpHint] = useState("");
-  const [selectedPlan, setSelectedPlan] = useState<"free" | "pro">(initialPlan);
+  const [selectedPlan, setSelectedPlan] = useState<Plan>(availablePlans.includes(initialPlan) ? initialPlan : (availablePlans[0] || "free"));
   const [form, setForm] = useState({ fullName: "", email: "", password: "", otp: "" });
   const router = useRouter();
 
@@ -107,9 +114,9 @@ export default function SignupForm({ initialPlan = "free" }: { initialPlan?: "fr
             <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="Full name" value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} />
             <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="Email" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
             <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="Password" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
-            <select className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" value={selectedPlan} onChange={(event) => setSelectedPlan(event.target.value as "free" | "pro")}>
-              <option value="free">Start on Free</option>
-              <option value="pro">I want Pro access</option>
+            <select className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" value={selectedPlan} onChange={(event) => setSelectedPlan(event.target.value as Plan)}>
+              {availablePlans.includes("free") ? <option value="free">Start on Free</option> : null}
+              {availablePlans.includes("pro") ? <option value="pro">I want Pro access</option> : null}
             </select>
           </>
         ) : (

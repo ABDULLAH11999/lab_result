@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import { getSession } from "@/lib/auth";
-import { getSettings } from "@/lib/db";
+import { getPlans, getSettings } from "@/lib/db";
 import { normalizeBaseUrl } from "@/lib/seo";
 import UpgradeButton from "@/components/billing/UpgradeButton";
 
@@ -17,14 +17,26 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const plans = [
-  { name: "Guest", price: "$0", cta: "Start free", href: "/analyze", features: ["3 analyses/day", "Full report explanation", "Doctor question list"] },
-  { name: "Free", price: "$0", cta: "Create account", href: "/auth/signup", features: ["10 analyses/day", "Save last 5 reports", "Basic history"] },
-  { name: "Pro", price: "$9/mo", cta: "Go Pro", href: "/auth/signup?plan=pro", features: ["Unlimited analyses", "Full history", "Trend comparison", "PDF export"] }
+const fallbackPlans = [
+  { id: "guest", name: "Guest", price: 0, isVisible: true, cta: "Start free", href: "/analyze", features: ["3 analyses/day", "Full report explanation", "Doctor question list"] },
+  { id: "free", name: "Free", price: 0, isVisible: true, cta: "Create account", href: "/auth/signup", features: ["10 analyses/day", "Save last 5 reports", "Basic history"] },
+  { id: "pro", name: "Pro", price: 9, isVisible: true, cta: "Go Pro", href: "/auth/signup?plan=pro", features: ["Unlimited analyses", "Full history", "Trend comparison", "PDF export"] }
 ];
+
+function formatPrice(plan: any) {
+  if (typeof plan.price === "string") {
+    return plan.price;
+  }
+  if (plan.price === 0) {
+    return "$0";
+  }
+  return plan.isPaid === false ? `$${plan.price}` : `$${plan.price}/mo`;
+}
 
 export default async function PricingPage() {
   const session = await getSession();
+  const plansFromDb = (await getPlans<any>()).filter((plan) => plan.isVisible !== false);
+  const plans = plansFromDb.length ? plansFromDb : fallbackPlans;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
@@ -34,18 +46,18 @@ export default async function PricingPage() {
       </div>
       <div className="grid gap-6 md:grid-cols-3">
         {plans.map((plan) => (
-          <div key={plan.name} className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+          <div key={plan.id || plan.name} className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="font-syne text-2xl font-bold text-slate-950">{plan.name}</h2>
-            <p className="mt-3 text-4xl font-extrabold text-slate-950">{plan.price}</p>
+            <p className="mt-3 text-4xl font-extrabold text-slate-950">{formatPrice(plan)}</p>
             <div className="mt-6 space-y-3">
-              {plan.features.map((feature) => (
+              {plan.features.map((feature: string) => (
                 <div key={feature} className="flex gap-3 text-sm text-slate-700">
                   <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
                   <span>{feature}</span>
                 </div>
               ))}
             </div>
-            {plan.name === "Pro" ? (
+            {plan.id === "pro" ? (
               <UpgradeButton
                 authenticated={Boolean(session)}
                 className="mt-8 inline-flex w-full justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"

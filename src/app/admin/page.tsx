@@ -770,6 +770,19 @@ export default function AdminPage() {
                         next[index].analysesLimit = Number(event.target.value);
                         setPlans(next);
                       }} />
+                      <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700">
+                        <input
+                          type="checkbox"
+                          checked={plan.isVisible !== false}
+                          onChange={(event) => {
+                            const next = [...plans];
+                            next[index].isVisible = event.target.checked;
+                            setPlans(next);
+                          }}
+                          className="size-4 rounded border-slate-300 text-blue-600"
+                        />
+                        Show on public pricing page
+                      </label>
                     </div>
                   </div>
                 ))}

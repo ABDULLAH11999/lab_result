@@ -118,7 +118,10 @@ export async function POST(request: NextRequest) {
     if (!Array.isArray(body.plans)) {
       return NextResponse.json({ error: "Plans array is required." }, { status: 400 });
     }
-    await writePlans(body.plans);
+    await writePlans(body.plans.map((plan: any) => ({
+      ...plan,
+      isVisible: plan.isVisible !== false
+    })));
     return NextResponse.json({ success: true });
   }
 

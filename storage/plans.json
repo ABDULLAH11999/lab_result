@@ -4,6 +4,7 @@
     "name": "Guest",
     "price": 0,
     "isPaid": false,
+    "isVisible": true,
     "analysesLimit": 3,
     "features": [
       "3 analyses/day",
@@ -16,6 +17,7 @@
     "name": "Free",
     "price": 0,
     "isPaid": false,
+    "isVisible": true,
     "analysesLimit": 10,
     "features": [
       "10 analyses/day",
@@ -28,6 +30,7 @@
     "name": "Pro",
     "price": 9,
     "isPaid": true,
+    "isVisible": true,
     "analysesLimit": 999999,
     "features": [
       "Unlimited analyses",
